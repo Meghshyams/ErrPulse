@@ -2,7 +2,14 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useProject } from "../context/ProjectContext";
 import { useState, useCallback } from "react";
-import { LayoutDashboard, AlertTriangle, Globe, Zap, ChevronDown, FolderOpen } from "lucide-react";
+import {
+  LayoutDashboard,
+  AlertTriangle,
+  Globe,
+  Activity,
+  ChevronDown,
+  FolderOpen,
+} from "lucide-react";
 import { cn } from "../lib/utils";
 
 const NAV_ITEMS = [
@@ -31,11 +38,11 @@ export function Layout() {
       <aside className="w-56 flex-shrink-0 border-r border-border/50 bg-card/50 flex flex-col">
         {/* Brand */}
         <div className="h-14 flex items-center gap-2.5 px-5 border-b border-border/50">
-          <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-primary" />
+          <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Activity className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
           </div>
           <span className="font-semibold text-[15px] tracking-tight">
-            Err<span className="text-primary">Lens</span>
+            err<span className="text-primary font-bold">pulse</span>
           </span>
         </div>
 

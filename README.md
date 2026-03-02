@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/ErrPulse-Error%20Monitoring-6d5cff?style=for-the-badge&labelColor=09090b" alt="ErrPulse" />
+  <img src="https://img.shields.io/badge/ErrPulse-Error%20Monitoring-f43f5e?style=for-the-badge&labelColor=09090b" alt="ErrPulse" />
 </p>
 
 <h1 align="center">ErrPulse</h1>

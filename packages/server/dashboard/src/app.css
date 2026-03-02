@@ -9,14 +9,15 @@
   --color-card: #0c0c0e;
   --color-card-foreground: #fafafa;
   --color-border: #27272a;
-  --color-primary: #6d5cff;
+  --color-primary: #f43f5e;
   --color-primary-foreground: #ffffff;
+  --color-primary-soft: #ff6b8a;
   --color-destructive: #ef4444;
   --color-warning: #f59e0b;
   --color-success: #22c55e;
   --color-accent: #3f3f46;
   --color-accent-foreground: #fafafa;
-  --color-ring: #6d5cff;
+  --color-ring: #f43f5e;
   --radius: 0.5rem;
 
   --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
