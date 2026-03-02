@@ -3,14 +3,14 @@ import {
   ErrorSource,
   Severity,
   generateEventId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent } from "../client.js";
 
 export function installGlobalErrorHandler(): () => void {
   const handler = (event: ErrorEvent) => {
     const err = event.error;
-    const errEvent: ErrLensEvent = {
+    const errEvent: ErrPulseEvent = {
       eventId: generateEventId(),
       timestamp: new Date().toISOString(),
       type: ErrorType.UncaughtException,

@@ -1,6 +1,6 @@
 import type Database from "better-sqlite3";
-import type { RequestLogEntry } from "@errlens/core";
-import { generateEventId } from "@errlens/core";
+import type { RequestLogEntry } from "@errpulse/core";
+import { generateEventId } from "@errpulse/core";
 
 export interface RequestRow {
   id: string;

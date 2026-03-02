@@ -10,7 +10,7 @@ export function createProjectsRouter(projectRepo: ProjectRepository): Router {
       const projects = projectRepo.findAll();
       res.json({ projects });
     } catch (err) {
-      console.error("[ErrLens] Failed to fetch projects:", err);
+      console.error("[ErrPulse] Failed to fetch projects:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });

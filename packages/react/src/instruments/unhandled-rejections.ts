@@ -3,8 +3,8 @@ import {
   ErrorSource,
   Severity,
   generateEventId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent } from "../client.js";
 
 export function installUnhandledRejectionHandler(): () => void {
@@ -12,7 +12,7 @@ export function installUnhandledRejectionHandler(): () => void {
     const reason = event.reason;
     const error = reason instanceof Error ? reason : new Error(String(reason));
 
-    const errEvent: ErrLensEvent = {
+    const errEvent: ErrPulseEvent = {
       eventId: generateEventId(),
       timestamp: new Date().toISOString(),
       type: ErrorType.UnhandledRejection,

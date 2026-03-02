@@ -1,11 +1,11 @@
-import { EVENTS_ENDPOINT, BATCH_SIZE, BATCH_INTERVAL_MS, type ErrLensEvent } from "@errlens/core";
+import { EVENTS_ENDPOINT, BATCH_SIZE, BATCH_INTERVAL_MS, type ErrPulseEvent } from "@errpulse/core";
 import { getConfig } from "./config.js";
 
-let buffer: ErrLensEvent[] = [];
+let buffer: ErrPulseEvent[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 let isFlushing = false;
 
-async function sendBatch(events: ErrLensEvent[]): Promise<void> {
+async function sendBatch(events: ErrPulseEvent[]): Promise<void> {
   const config = getConfig();
   if (!config.enabled || events.length === 0) return;
 
@@ -24,7 +24,7 @@ async function sendBatch(events: ErrLensEvent[]): Promise<void> {
     });
 
     if (!resp.ok) {
-      console.warn(`[ErrLens] Failed to send events: ${resp.status}`);
+      console.warn(`[ErrPulse] Failed to send events: ${resp.status}`);
     }
   } catch {
     // Silently fail — SDK must never crash host app
@@ -54,7 +54,7 @@ async function flush(): Promise<void> {
   }
 }
 
-export function enqueueEvent(event: ErrLensEvent): void {
+export function enqueueEvent(event: ErrPulseEvent): void {
   const config = getConfig();
   if (!config.enabled) return;
 

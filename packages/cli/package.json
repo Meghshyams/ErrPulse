@@ -1,10 +1,26 @@
 {
-  "name": "errlens",
+  "name": "errpulse",
   "version": "0.1.0",
-  "description": "ErrLens — the error monitoring tool that runs with one command",
+  "description": "ErrPulse — the error monitoring tool that runs with one command",
+  "license": "MIT",
+  "author": "Meghshyam Sonar",
+  "homepage": "https://github.com/Meghshyams/ErrPulse#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Meghshyams/ErrPulse.git",
+    "directory": "packages/cli"
+  },
+  "keywords": [
+    "error-monitoring",
+    "error-tracking",
+    "cli",
+    "developer-tools",
+    "errpulse",
+    "sentry-alternative"
+  ],
   "type": "module",
   "bin": {
-    "errlens": "./dist/index.js"
+    "errpulse": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -14,7 +30,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@errlens/server": "workspace:*"
+    "@errpulse/server": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.3.5",

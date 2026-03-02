@@ -1,12 +1,12 @@
 import { createHash } from "crypto";
-import type { ErrLensEvent, StackFrame } from "../types/error-event.js";
+import type { ErrPulseEvent, StackFrame } from "../types/error-event.js";
 import { normalizeMessage, getTopFrames } from "./normalize.js";
 
 function frameKey(frame: StackFrame): string {
   return `${frame.filename}:${frame.function}`;
 }
 
-export function computeFingerprint(event: ErrLensEvent): string {
+export function computeFingerprint(event: ErrPulseEvent): string {
   const parts: string[] = [event.type];
 
   parts.push(normalizeMessage(event.message));

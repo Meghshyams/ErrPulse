@@ -5,9 +5,9 @@ import {
   generateEventId,
   sanitizeHeaders,
   CORRELATION_HEADER,
-  type ErrLensEvent,
+  type ErrPulseEvent,
   type RequestContext,
-} from "@errlens/core";
+} from "@errpulse/core";
 import { enqueueEvent, sendRequest } from "../client.js";
 import { parseStack } from "../helpers/stack-parser.js";
 import { getEnvironment } from "../helpers/environment.js";
@@ -85,7 +85,7 @@ export function expressErrorHandler() {
         userAgent: req.headers["user-agent"] as string,
       };
 
-      const event: ErrLensEvent = {
+      const event: ErrPulseEvent = {
         eventId: generateEventId(),
         timestamp: new Date().toISOString(),
         type: ErrorType.HttpError,

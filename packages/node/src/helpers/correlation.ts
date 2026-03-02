@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "async_hooks";
-import { CORRELATION_HEADER, generateCorrelationId } from "@errlens/core";
+import { CORRELATION_HEADER, generateCorrelationId } from "@errpulse/core";
 
 const correlationStore = new AsyncLocalStorage<string>();
 

@@ -5,8 +5,8 @@ import {
   generateEventId,
   CORRELATION_HEADER,
   generateCorrelationId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent, getEndpoint } from "../client.js";
 
 export function installXHRInterceptor(): () => void {
@@ -15,20 +15,20 @@ export function installXHRInterceptor(): () => void {
   const originalSend = OriginalXHR.prototype.send;
 
   OriginalXHR.prototype.open = function (method: string, url: string | URL, ...args: unknown[]) {
-    (this as unknown as { _errlens_method: string })._errlens_method = method;
-    (this as unknown as { _errlens_url: string })._errlens_url = String(url);
-    (this as unknown as { _errlens_start: number })._errlens_start = Date.now();
+    (this as unknown as { _errpulse_method: string })._errpulse_method = method;
+    (this as unknown as { _errpulse_url: string })._errpulse_url = String(url);
+    (this as unknown as { _errpulse_start: number })._errpulse_start = Date.now();
     return (originalOpen as Function).call(this, method, url, ...args);
   };
 
   OriginalXHR.prototype.send = function (body?: Document | XMLHttpRequestBodyInit | null) {
-    const method = (this as unknown as { _errlens_method: string })._errlens_method;
-    const url = (this as unknown as { _errlens_url: string })._errlens_url;
-    const startTime = (this as unknown as { _errlens_start: number })._errlens_start;
+    const method = (this as unknown as { _errpulse_method: string })._errpulse_method;
+    const url = (this as unknown as { _errpulse_url: string })._errpulse_url;
+    const startTime = (this as unknown as { _errpulse_start: number })._errpulse_start;
 
-    // Don't intercept calls to ErrLens
-    const errLensEndpoint = getEndpoint();
-    if (errLensEndpoint && url.startsWith(errLensEndpoint)) {
+    // Don't intercept calls to ErrPulse
+    const errPulseEndpoint = getEndpoint();
+    if (errPulseEndpoint && url.startsWith(errPulseEndpoint)) {
       return originalSend.call(this, body);
     }
 
@@ -42,7 +42,7 @@ export function installXHRInterceptor(): () => void {
 
     this.addEventListener("loadend", () => {
       if (this.status >= 400) {
-        const event: ErrLensEvent = {
+        const event: ErrPulseEvent = {
           eventId: generateEventId(),
           timestamp: new Date().toISOString(),
           type: ErrorType.HttpError,
@@ -68,7 +68,7 @@ export function installXHRInterceptor(): () => void {
     });
 
     this.addEventListener("error", () => {
-      const event: ErrLensEvent = {
+      const event: ErrPulseEvent = {
         eventId: generateEventId(),
         timestamp: new Date().toISOString(),
         type: ErrorType.NetworkError,

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/ErrLens-Error%20Monitoring-6d5cff?style=for-the-badge&labelColor=09090b" alt="ErrLens" />
+  <img src="https://img.shields.io/badge/ErrPulse-Error%20Monitoring-6d5cff?style=for-the-badge&labelColor=09090b" alt="ErrPulse" />
 </p>
 
-<h1 align="center">ErrLens</h1>
+<h1 align="center">ErrPulse</h1>
 
 <p align="center">
   <strong>The error monitoring tool that runs with one command.</strong><br/>
@@ -28,13 +28,13 @@
 
 ---
 
-## Why ErrLens?
+## Why ErrPulse?
 
 Sentry requires 20+ containers, 16GB RAM, and costs $26+/month. Nothing works during local development. You're stuck with `console.log`.
 
-ErrLens is different:
+ErrPulse is different:
 
-- **One command**: `npx errlens` — server + dashboard at `localhost:3800`
+- **One command**: `npx errpulse` — server + dashboard at `localhost:3800`
 - **Catches everything**: Uncaught exceptions, unhandled rejections, failed fetches, React crashes, console.error, resource failures, memory warnings — all of it
 - **Real-time dashboard**: Errors appear instantly via WebSocket
 - **Plain-English explanations**: Every error gets a human-readable explanation with fix suggestions
@@ -44,26 +44,26 @@ ErrLens is different:
 
 ## Quick Start
 
-### 1. Start ErrLens
+### 1. Start ErrPulse
 
 ```bash
-npx errlens
-# => ErrLens running at http://localhost:3800
+npx errpulse
+# => ErrPulse running at http://localhost:3800
 ```
 
 ### 2. Add to your backend (Node.js / Express)
 
 ```bash
-npm install @errlens/node
+npm install @errpulse/node
 ```
 
 ```typescript
 // Minimal — auto-captures uncaught exceptions, rejections, console.error
-import "@errlens/node";
+import "@errpulse/node";
 
 // With Express — also tracks HTTP requests and route errors
-import { expressRequestHandler, expressErrorHandler } from "@errlens/node";
-import { init } from "@errlens/node";
+import { expressRequestHandler, expressErrorHandler } from "@errpulse/node";
+import { init } from "@errpulse/node";
 
 init({ serverUrl: "http://localhost:3800", projectId: "my-api" });
 
@@ -76,17 +76,17 @@ app.use(expressErrorHandler()); // Catch route errors
 ### 3. Add to your frontend (React)
 
 ```bash
-npm install @errlens/react
+npm install @errpulse/react
 ```
 
 ```tsx
-import { ErrLensProvider } from "@errlens/react";
+import { ErrPulseProvider } from "@errpulse/react";
 
 function App() {
   return (
-    <ErrLensProvider endpoint="http://localhost:3800" projectId="my-web-app">
+    <ErrPulseProvider endpoint="http://localhost:3800" projectId="my-web-app">
       <YourApp />
-    </ErrLensProvider>
+    </ErrPulseProvider>
   );
 }
 ```
@@ -99,19 +99,19 @@ Navigate to [http://localhost:3800](http://localhost:3800) — see all errors in
 
 ## What Gets Caught
 
-### Backend (`@errlens/node`)
+### Backend (`@errpulse/node`)
 
 | Error Type                     | How                                    |
 | ------------------------------ | -------------------------------------- |
 | Uncaught exceptions            | `process.on('uncaughtException')`      |
 | Unhandled promise rejections   | `process.on('unhandledRejection')`     |
 | Express route errors (4xx/5xx) | Error handler middleware               |
-| Next.js API route errors       | `withErrLens()` wrapper                |
+| Next.js API route errors       | `withErrPulse()` wrapper               |
 | `console.error` calls          | Monkey-patch                           |
 | Memory warnings                | Periodic `process.memoryUsage()` check |
 | All HTTP requests              | Request handler middleware             |
 
-### Frontend (`@errlens/react`)
+### Frontend (`@errpulse/react`)
 
 | Error Type                                | How                                       |
 | ----------------------------------------- | ----------------------------------------- |
@@ -125,16 +125,16 @@ Navigate to [http://localhost:3800](http://localhost:3800) — see all errors in
 
 ### Error Correlation
 
-Frontend injects an `X-ErrLens-Correlation-ID` header into every fetch request. Backend reads the same ID. The dashboard shows the full chain: **user action → frontend request → backend error**.
+Frontend injects an `X-ErrPulse-Correlation-ID` header into every fetch request. Backend reads the same ID. The dashboard shows the full chain: **user action → frontend request → backend error**.
 
 ---
 
 ## SDKs
 
-### `@errlens/node` — Backend SDK
+### `@errpulse/node` — Backend SDK
 
 ```typescript
-import { init, captureError, captureMessage, close } from "@errlens/node";
+import { init, captureError, captureMessage, close } from "@errpulse/node";
 
 // Configure
 init({
@@ -161,7 +161,7 @@ close();
 #### Express Integration
 
 ```typescript
-import { expressRequestHandler, expressErrorHandler } from "@errlens/node";
+import { expressRequestHandler, expressErrorHandler } from "@errpulse/node";
 
 app.use(expressRequestHandler()); // Must be first middleware
 // ... routes ...
@@ -171,20 +171,20 @@ app.use(expressErrorHandler()); // Must be last middleware
 #### Next.js Integration
 
 ```typescript
-import { withErrLens } from "@errlens/node";
+import { withErrPulse } from "@errpulse/node";
 
-export const GET = withErrLens(async (req) => {
+export const GET = withErrPulse(async (req) => {
   // Your handler — errors are auto-captured
   return Response.json({ data: "hello" });
 });
 ```
 
-### `@errlens/react` — Frontend SDK
+### `@errpulse/react` — Frontend SDK
 
 ```tsx
-import { ErrLensProvider } from "@errlens/react";
+import { ErrPulseProvider } from "@errpulse/react";
 
-<ErrLensProvider
+<ErrPulseProvider
   endpoint="http://localhost:3800"
   projectId="my-web-app"
   captureConsoleErrors={true}
@@ -194,16 +194,16 @@ import { ErrLensProvider } from "@errlens/react";
   errorBoundaryFallback={<div>Something went wrong</div>}
 >
   <App />
-</ErrLensProvider>;
+</ErrPulseProvider>;
 ```
 
 #### Manual Capture Hook
 
 ```tsx
-import { useErrLens } from "@errlens/react";
+import { useErrPulse } from "@errpulse/react";
 
 function MyComponent() {
-  const { captureError, captureMessage } = useErrLens();
+  const { captureError, captureMessage } = useErrPulse();
 
   const handleClick = () => {
     try {
@@ -233,7 +233,7 @@ Built with React + Tailwind CSS + WebSocket for real-time updates.
 
 ## Multi-Project
 
-Monitor multiple apps from a single ErrLens instance. Each SDK sends a `projectId`, and the dashboard lets you filter by project.
+Monitor multiple apps from a single ErrPulse instance. Each SDK sends a `projectId`, and the dashboard lets you filter by project.
 
 ```typescript
 // Backend app 1
@@ -243,7 +243,7 @@ init({ serverUrl: 'http://localhost:3800', projectId: 'api-server' });
 init({ serverUrl: 'http://localhost:3800', projectId: 'worker-service' });
 
 // Frontend
-<ErrLensProvider endpoint="http://localhost:3800" projectId="web-app">
+<ErrPulseProvider endpoint="http://localhost:3800" projectId="web-app">
 ```
 
 The dashboard sidebar shows a project dropdown. Select a project to scope all data (errors, requests, stats) to that project, or choose "All Projects" to see everything.
@@ -257,11 +257,11 @@ Projects are auto-registered on first event — no manual setup required.
 ```
 Your App (Backend)           Your App (Frontend)
       │                              │
-  @errlens/node               @errlens/react
+  @errpulse/node               @errpulse/react
       │                              │
       └──────── HTTP POST ───────────┘
                     │
-          ErrLens Server (@errlens/server)
+          ErrPulse Server (@errpulse/server)
             │           │
          SQLite    WebSocket ──→ Dashboard UI
 ```
@@ -269,14 +269,14 @@ Your App (Backend)           Your App (Frontend)
 ### Monorepo Structure
 
 ```
-errlens/
+errpulse/
 ├── packages/
-│   ├── core/        # @errlens/core — shared types, fingerprinting, 46 error explanations
-│   ├── server/      # @errlens/server — Express API + SQLite + WebSocket
+│   ├── core/        # @errpulse/core — shared types, fingerprinting, 46 error explanations
+│   ├── server/      # @errpulse/server — Express API + SQLite + WebSocket
 │   │   └── dashboard/  # React dashboard (Vite + Tailwind CSS)
-│   ├── node/        # @errlens/node — Backend SDK
-│   ├── react/       # @errlens/react — Frontend SDK
-│   └── cli/         # errlens — CLI entry point
+│   ├── node/        # @errpulse/node — Backend SDK
+│   ├── react/       # @errpulse/react — Frontend SDK
+│   └── cli/         # errpulse — CLI entry point
 ├── package.json
 ├── pnpm-workspace.yaml
 └── vitest.workspace.ts
@@ -295,7 +295,7 @@ errlens/
 
 ## API
 
-All endpoints are served from the ErrLens server (default `http://localhost:3800`).
+All endpoints are served from the ErrPulse server (default `http://localhost:3800`).
 
 | Method  | Endpoint              | Description                     |
 | ------- | --------------------- | ------------------------------- |
@@ -319,11 +319,11 @@ All list endpoints support `?projectId=<name>` to filter by project.
 ## CLI
 
 ```bash
-npx errlens                    # Start server on port 3800
-npx errlens start --port 4000  # Custom port
-npx errlens status             # Check if running
-npx errlens clear              # Clear all data
-npx errlens help               # Show help
+npx errpulse                    # Start server on port 3800
+npx errpulse start --port 4000  # Custom port
+npx errpulse status             # Check if running
+npx errpulse clear              # Clear all data
+npx errpulse help               # Show help
 ```
 
 ## Development

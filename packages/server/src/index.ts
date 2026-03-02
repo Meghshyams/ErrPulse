@@ -35,7 +35,7 @@ export async function startServer(partial?: Partial<ServerConfig>): Promise<{
 
   return new Promise((resolve) => {
     server.listen(config.port, config.host, () => {
-      console.log(`\n  ErrLens running at http://localhost:${config.port}\n`);
+      console.log(`\n  ErrPulse running at http://localhost:${config.port}\n`);
       console.log(`  Dashboard:  http://localhost:${config.port}`);
       console.log(`  API:        http://localhost:${config.port}/api`);
       console.log(`  WebSocket:  ws://localhost:${config.port}/ws\n`);

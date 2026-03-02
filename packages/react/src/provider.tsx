@@ -6,9 +6,9 @@ import { installFetchInterceptor } from "./instruments/fetch-interceptor.js";
 import { installXHRInterceptor } from "./instruments/xhr-interceptor.js";
 import { installConsoleInterceptor } from "./instruments/console-interceptor.js";
 import { installResourceErrorHandler } from "./instruments/resource-errors.js";
-import { ErrLensErrorBoundary } from "./components/ErrorBoundary.js";
+import { ErrPulseErrorBoundary } from "./components/ErrorBoundary.js";
 
-interface ErrLensProviderProps {
+interface ErrPulseProviderProps {
   endpoint: string;
   projectId?: string;
   children: React.ReactNode;
@@ -19,7 +19,7 @@ interface ErrLensProviderProps {
   errorBoundaryFallback?: React.ReactNode | ((error: Error) => React.ReactNode);
 }
 
-export function ErrLensProvider({
+export function ErrPulseProvider({
   endpoint,
   projectId,
   children,
@@ -28,7 +28,7 @@ export function ErrLensProvider({
   captureXHR = true,
   captureResourceErrors = true,
   errorBoundaryFallback,
-}: ErrLensProviderProps): React.ReactElement {
+}: ErrPulseProviderProps): React.ReactElement {
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -59,5 +59,5 @@ export function ErrLensProvider({
     };
   }, [endpoint, captureConsoleErrors, captureFetch, captureXHR, captureResourceErrors]);
 
-  return <ErrLensErrorBoundary fallback={errorBoundaryFallback}>{children}</ErrLensErrorBoundary>;
+  return <ErrPulseErrorBoundary fallback={errorBoundaryFallback}>{children}</ErrPulseErrorBoundary>;
 }

@@ -7,7 +7,7 @@ import path from "path";
 import os from "os";
 import fs from "fs";
 
-const testDbPath = path.join(os.tmpdir(), `errlens-test-${Date.now()}.db`);
+const testDbPath = path.join(os.tmpdir(), `errpulse-test-${Date.now()}.db`);
 
 let app: ReturnType<typeof createApp>["app"];
 let server: http.Server;

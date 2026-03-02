@@ -3,8 +3,8 @@ import {
   ErrorSource,
   Severity,
   generateEventId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent, flushAll } from "../client.js";
 import { parseStack } from "../helpers/stack-parser.js";
 import { getEnvironment } from "../helpers/environment.js";
@@ -16,7 +16,7 @@ export function installUncaughtExceptionHandler(): () => void {
   installed = true;
 
   const handler = async (error: Error) => {
-    const event: ErrLensEvent = {
+    const event: ErrPulseEvent = {
       eventId: generateEventId(),
       timestamp: new Date().toISOString(),
       type: ErrorType.UncaughtException,

@@ -13,7 +13,7 @@ export interface StackFrame {
   postContext?: string[];
 }
 
-export interface ErrLensEvent {
+export interface ErrPulseEvent {
   eventId: string;
   timestamp: string;
   type: ErrorType;
@@ -45,5 +45,5 @@ export interface ErrorGroup {
   lastSeen: string;
   count: number;
   projectId?: string;
-  lastEvent?: ErrLensEvent;
+  lastEvent?: ErrPulseEvent;
 }

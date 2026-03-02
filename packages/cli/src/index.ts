@@ -1,18 +1,18 @@
-import { startServer, resolveConfig } from "@errlens/server";
+import { startServer, resolveConfig } from "@errpulse/server";
 
 const args = process.argv.slice(2);
 const command = args[0] ?? "start";
 
 function printHelp(): void {
   console.log(`
-  errlens — the error monitoring tool that runs with one command
+  errpulse — the error monitoring tool that runs with one command
 
   Usage:
-    errlens [command] [options]
+    errpulse [command] [options]
 
   Commands:
-    start     Start the ErrLens server (default)
-    status    Check if ErrLens is running
+    start     Start the ErrPulse server (default)
+    status    Check if ErrPulse is running
     clear     Clear all stored errors and requests
     help      Show this help message
 
@@ -20,9 +20,9 @@ function printHelp(): void {
     --port <number>    Port to listen on (default: 3800)
 
   Examples:
-    npx errlens
-    npx errlens start --port 4000
-    npx errlens clear
+    npx errpulse
+    npx errpulse start --port 4000
+    npx errpulse clear
   `);
 }
 
@@ -51,13 +51,13 @@ async function main(): Promise<void> {
         });
         if (res.ok) {
           const data = await res.json();
-          console.log(`  ErrLens is running on port ${config.port}`);
+          console.log(`  ErrPulse is running on port ${config.port}`);
           console.log(`  Uptime: ${Math.round(data.uptime)}s`);
         } else {
-          console.log(`  ErrLens returned status ${res.status}`);
+          console.log(`  ErrPulse returned status ${res.status}`);
         }
       } catch {
-        console.log(`  ErrLens is not running on port ${config.port}`);
+        console.log(`  ErrPulse is not running on port ${config.port}`);
         process.exit(1);
       }
       break;
@@ -76,7 +76,7 @@ async function main(): Promise<void> {
           console.log(`  Failed to clear: ${res.status}`);
         }
       } catch {
-        console.log(`  ErrLens is not running on port ${config.port}`);
+        console.log(`  ErrPulse is not running on port ${config.port}`);
         process.exit(1);
       }
       break;
@@ -96,6 +96,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  console.error("Failed to start ErrLens:", err);
+  console.error("Failed to start ErrPulse:", err);
   process.exit(1);
 });

@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { computeFingerprint } from "../utils/fingerprint.js";
 import { ErrorType, ErrorSource, Severity } from "../types/enums.js";
-import type { ErrLensEvent } from "../types/error-event.js";
+import type { ErrPulseEvent } from "../types/error-event.js";
 
-function makeEvent(overrides: Partial<ErrLensEvent> = {}): ErrLensEvent {
+function makeEvent(overrides: Partial<ErrPulseEvent> = {}): ErrPulseEvent {
   return {
     eventId: "test-id",
     timestamp: new Date().toISOString(),

@@ -1,6 +1,6 @@
 import type Database from "better-sqlite3";
-import type { ErrorGroup, ErrorExplanation } from "@errlens/core";
-import { generateEventId } from "@errlens/core";
+import type { ErrorGroup, ErrorExplanation } from "@errpulse/core";
+import { generateEventId } from "@errpulse/core";
 
 export interface ErrorRow {
   id: string;

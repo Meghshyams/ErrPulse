@@ -6,5 +6,5 @@ export default defineConfig({
   dts: true,
   clean: true,
   sourcemap: true,
-  noExternal: ["@errlens/core"],
+  noExternal: ["@errpulse/core"],
 });

@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { generateEventId, sanitizeHeaders, sanitizeObject, type ErrLensEvent } from "@errlens/core";
+import {
+  generateEventId,
+  sanitizeHeaders,
+  sanitizeObject,
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { ErrorRepository } from "../../db/repositories/error-repository.js";
 import { EventRepository } from "../../db/repositories/event-repository.js";
 import { RequestRepository } from "../../db/repositories/request-repository.js";
@@ -18,14 +23,14 @@ export function createEventsRouter(
   // POST /api/events — ingest a single error event
   router.post("/", (req, res) => {
     try {
-      const body = req.body as Partial<ErrLensEvent>;
+      const body = req.body as Partial<ErrPulseEvent>;
 
       if (!body.message || !body.type || !body.source) {
         res.status(400).json({ error: "Missing required fields: message, type, source" });
         return;
       }
 
-      const event: ErrLensEvent = {
+      const event: ErrPulseEvent = {
         eventId: body.eventId || generateEventId(),
         timestamp: body.timestamp || new Date().toISOString(),
         type: body.type,
@@ -33,7 +38,7 @@ export function createEventsRouter(
         stack: body.stack,
         stackFrames: body.stackFrames,
         source: body.source,
-        severity: body.severity || ("error" as ErrLensEvent["severity"]),
+        severity: body.severity || ("error" as ErrPulseEvent["severity"]),
         fingerprint: body.fingerprint,
         request: body.request
           ? {
@@ -73,7 +78,7 @@ export function createEventsRouter(
         isNew: result.isNew,
       });
     } catch (err) {
-      console.error("[ErrLens] Failed to ingest event:", err);
+      console.error("[ErrPulse] Failed to ingest event:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -81,7 +86,7 @@ export function createEventsRouter(
   // POST /api/events/batch — ingest multiple events
   router.post("/batch", (req, res) => {
     try {
-      const events = req.body as Partial<ErrLensEvent>[];
+      const events = req.body as Partial<ErrPulseEvent>[];
       if (!Array.isArray(events)) {
         res.status(400).json({ error: "Expected an array of events" });
         return;
@@ -91,7 +96,7 @@ export function createEventsRouter(
       for (const body of events) {
         if (!body.message || !body.type || !body.source) continue;
 
-        const event: ErrLensEvent = {
+        const event: ErrPulseEvent = {
           eventId: body.eventId || generateEventId(),
           timestamp: body.timestamp || new Date().toISOString(),
           type: body.type,
@@ -99,7 +104,7 @@ export function createEventsRouter(
           stack: body.stack,
           stackFrames: body.stackFrames,
           source: body.source,
-          severity: body.severity || ("error" as ErrLensEvent["severity"]),
+          severity: body.severity || ("error" as ErrPulseEvent["severity"]),
           fingerprint: body.fingerprint,
           request: body.request,
           environment: body.environment,
@@ -120,7 +125,7 @@ export function createEventsRouter(
 
       res.status(201).json(results);
     } catch (err) {
-      console.error("[ErrLens] Failed to ingest batch:", err);
+      console.error("[ErrPulse] Failed to ingest batch:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -159,7 +164,7 @@ export function createEventsRouter(
 
       res.status(201).json({ id });
     } catch (err) {
-      console.error("[ErrLens] Failed to log request:", err);
+      console.error("[ErrPulse] Failed to log request:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });

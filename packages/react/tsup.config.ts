@@ -7,5 +7,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   external: ["react", "react-dom"],
-  noExternal: ["@errlens/core"],
+  noExternal: ["@errpulse/core"],
 });

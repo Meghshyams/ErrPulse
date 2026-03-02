@@ -3,8 +3,8 @@ import {
   ErrorSource,
   Severity,
   generateEventId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent } from "../client.js";
 import { getEnvironment } from "../helpers/environment.js";
 import { getConfig } from "../config.js";
@@ -22,7 +22,7 @@ export function installMemoryMonitor(): () => void {
       const heapUsedMB = mem.heapUsed / (1024 * 1024);
 
       if (heapUsedMB > config.memoryThresholdMB) {
-        const event: ErrLensEvent = {
+        const event: ErrPulseEvent = {
           eventId: generateEventId(),
           timestamp: new Date().toISOString(),
           type: ErrorType.MemoryWarning,

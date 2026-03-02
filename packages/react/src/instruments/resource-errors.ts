@@ -3,8 +3,8 @@ import {
   ErrorSource,
   Severity,
   generateEventId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent } from "../client.js";
 
 export function installResourceErrorHandler(): () => void {
@@ -18,7 +18,7 @@ export function installResourceErrorHandler(): () => void {
 
     const src = (target as HTMLImageElement).src || (target as HTMLLinkElement).href || "unknown";
 
-    const errEvent: ErrLensEvent = {
+    const errEvent: ErrPulseEvent = {
       eventId: generateEventId(),
       timestamp: new Date().toISOString(),
       type: ErrorType.ResourceError,

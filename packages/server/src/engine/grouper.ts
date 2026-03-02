@@ -1,4 +1,4 @@
-import { computeFingerprint, type ErrLensEvent, type ErrorExplanation } from "@errlens/core";
+import { computeFingerprint, type ErrPulseEvent, type ErrorExplanation } from "@errpulse/core";
 import { ErrorRepository } from "../db/repositories/error-repository.js";
 import { EventRepository } from "../db/repositories/event-repository.js";
 import { ProjectRepository } from "../db/repositories/project-repository.js";
@@ -13,7 +13,7 @@ export interface IngestResult {
 }
 
 export function ingestEvent(
-  event: ErrLensEvent,
+  event: ErrPulseEvent,
   errorRepo: ErrorRepository,
   eventRepo: EventRepository,
   projectRepo?: ProjectRepository

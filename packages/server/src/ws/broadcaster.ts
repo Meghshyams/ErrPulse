@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server } from "http";
-import type { WebSocketMessage } from "@errlens/core";
+import type { WebSocketMessage } from "@errpulse/core";
 
 let wss: WebSocketServer | null = null;
 
@@ -9,7 +9,7 @@ export function initWebSocket(server: Server): WebSocketServer {
 
   wss.on("connection", (ws) => {
     ws.on("error", (err) => {
-      console.warn("[ErrLens] WebSocket client error:", err.message);
+      console.warn("[ErrPulse] WebSocket client error:", err.message);
     });
   });
 

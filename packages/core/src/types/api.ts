@@ -1,4 +1,4 @@
-import type { ErrorGroup, ErrLensEvent } from "./error-event.js";
+import type { ErrorGroup, ErrPulseEvent } from "./error-event.js";
 
 export interface IngestResponse {
   id: string;
@@ -15,7 +15,7 @@ export interface ErrorListResponse {
 
 export interface ErrorDetailResponse {
   error: ErrorGroup;
-  events: ErrLensEvent[];
+  events: ErrPulseEvent[];
 }
 
 export interface RequestLogEntry {

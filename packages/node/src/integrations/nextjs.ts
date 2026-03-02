@@ -5,8 +5,8 @@ import {
   generateEventId,
   CORRELATION_HEADER,
   generateCorrelationId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent, sendRequest } from "../client.js";
 import { parseStack } from "../helpers/stack-parser.js";
 import { getEnvironment } from "../helpers/environment.js";
@@ -26,10 +26,10 @@ type NextResponse = {
  * Wraps a Next.js API route handler to capture errors and log requests.
  *
  * Usage:
- *   import { withErrLens } from '@errlens/node'
- *   export const GET = withErrLens(async (req) => { ... })
+ *   import { withErrPulse } from '@errpulse/node'
+ *   export const GET = withErrPulse(async (req) => { ... })
  */
-export function withErrLens<T extends (...args: unknown[]) => Promise<unknown>>(handler: T): T {
+export function withErrPulse<T extends (...args: unknown[]) => Promise<unknown>>(handler: T): T {
   return (async (...args: unknown[]) => {
     const req = args[0] as NextRequest | undefined;
     const method = req?.method ?? "UNKNOWN";
@@ -70,7 +70,7 @@ export function withErrLens<T extends (...args: unknown[]) => Promise<unknown>>(
       });
 
       // Capture the error
-      const event: ErrLensEvent = {
+      const event: ErrPulseEvent = {
         eventId: generateEventId(),
         timestamp: new Date().toISOString(),
         type: ErrorType.HttpError,

@@ -4,14 +4,14 @@ import {
   ErrorSource,
   Severity,
   generateEventId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent } from "../client.js";
 
-export function useErrLens() {
+export function useErrPulse() {
   const captureError = useCallback((error: Error | string, extra?: Record<string, unknown>) => {
     const err = typeof error === "string" ? new Error(error) : error;
-    const event: ErrLensEvent = {
+    const event: ErrPulseEvent = {
       eventId: generateEventId(),
       timestamp: new Date().toISOString(),
       type: ErrorType.Manual,
@@ -35,7 +35,7 @@ export function useErrLens() {
       severity: "info" | "warning" | "error" = "info",
       extra?: Record<string, unknown>
     ) => {
-      const event: ErrLensEvent = {
+      const event: ErrPulseEvent = {
         eventId: generateEventId(),
         timestamp: new Date().toISOString(),
         type: ErrorType.Manual,

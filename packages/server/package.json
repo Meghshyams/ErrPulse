@@ -1,7 +1,26 @@
 {
-  "name": "@errlens/server",
+  "name": "@errpulse/server",
   "version": "0.1.0",
-  "description": "ErrLens server — Express API + SQLite + WebSocket",
+  "description": "ErrPulse server — Express API + SQLite + WebSocket",
+  "license": "MIT",
+  "author": "Meghshyam Sonar",
+  "homepage": "https://github.com/Meghshyams/ErrPulse#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Meghshyams/ErrPulse.git",
+    "directory": "packages/server"
+  },
+  "keywords": [
+    "error-monitoring",
+    "error-tracking",
+    "express",
+    "sqlite",
+    "websocket",
+    "errpulse"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -29,7 +48,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@errlens/core": "workspace:*",
+    "@errpulse/core": "workspace:*",
     "better-sqlite3": "^11.7.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",

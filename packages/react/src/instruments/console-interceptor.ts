@@ -3,8 +3,8 @@ import {
   ErrorSource,
   Severity,
   generateEventId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent } from "../client.js";
 
 export function installConsoleInterceptor(): () => void {
@@ -16,7 +16,7 @@ export function installConsoleInterceptor(): () => void {
     try {
       const message = args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" ");
 
-      const event: ErrLensEvent = {
+      const event: ErrPulseEvent = {
         eventId: generateEventId(),
         timestamp: new Date().toISOString(),
         type: ErrorType.ConsoleError,

@@ -21,7 +21,7 @@ export function createRequestsRouter(requestRepo: RequestRepository): Router {
         pageSize: pageSize ? Number(pageSize) : 50,
       });
     } catch (err) {
-      console.error("[ErrLens] Failed to fetch requests:", err);
+      console.error("[ErrPulse] Failed to fetch requests:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });

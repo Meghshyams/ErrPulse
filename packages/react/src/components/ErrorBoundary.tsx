@@ -4,8 +4,8 @@ import {
   ErrorSource,
   Severity,
   generateEventId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent } from "../client.js";
 
 interface ErrorBoundaryProps {
@@ -17,7 +17,7 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-export class ErrLensErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrPulseErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { error: null };
@@ -28,7 +28,7 @@ export class ErrLensErrorBoundary extends React.Component<ErrorBoundaryProps, Er
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    const event: ErrLensEvent = {
+    const event: ErrPulseEvent = {
       eventId: generateEventId(),
       timestamp: new Date().toISOString(),
       type: ErrorType.ReactError,

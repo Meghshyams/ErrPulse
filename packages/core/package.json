@@ -1,7 +1,24 @@
 {
-  "name": "@errlens/core",
+  "name": "@errpulse/core",
   "version": "0.1.0",
-  "description": "Shared types, fingerprinting, and error explanations for ErrLens",
+  "description": "Shared types, fingerprinting, and error explanations for ErrPulse",
+  "license": "MIT",
+  "author": "Meghshyam Sonar",
+  "homepage": "https://github.com/Meghshyams/ErrPulse#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Meghshyams/ErrPulse.git",
+    "directory": "packages/core"
+  },
+  "keywords": [
+    "error-monitoring",
+    "error-tracking",
+    "fingerprinting",
+    "errpulse"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

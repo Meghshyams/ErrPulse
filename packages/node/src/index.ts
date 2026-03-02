@@ -1,5 +1,5 @@
-import type { ErrLensEvent } from "@errlens/core";
-import { ErrorType, ErrorSource, Severity, generateEventId } from "@errlens/core";
+import type { ErrPulseEvent } from "@errpulse/core";
+import { ErrorType, ErrorSource, Severity, generateEventId } from "@errpulse/core";
 import { configure, getConfig, type NodeSDKConfig } from "./config.js";
 import { enqueueEvent, flushAll } from "./client.js";
 import { installUncaughtExceptionHandler } from "./instruments/uncaught-exception.js";
@@ -14,7 +14,7 @@ import { getCorrelationId } from "./helpers/correlation.js";
 export { configure, getConfig } from "./config.js";
 export type { NodeSDKConfig } from "./config.js";
 export { expressRequestHandler, expressErrorHandler } from "./integrations/express.js";
-export { withErrLens } from "./integrations/nextjs.js";
+export { withErrPulse } from "./integrations/nextjs.js";
 export { flushAll } from "./client.js";
 export { getCorrelationId } from "./helpers/correlation.js";
 
@@ -49,7 +49,7 @@ export function captureError(error: Error | string, extra?: Record<string, unkno
   const err = typeof error === "string" ? new Error(error) : error;
   const eventId = generateEventId();
 
-  const event: ErrLensEvent = {
+  const event: ErrPulseEvent = {
     eventId,
     timestamp: new Date().toISOString(),
     type: ErrorType.Manual,
@@ -75,7 +75,7 @@ export function captureMessage(
 ): string {
   const eventId = generateEventId();
 
-  const event: ErrLensEvent = {
+  const event: ErrPulseEvent = {
     eventId,
     timestamp: new Date().toISOString(),
     type: ErrorType.Manual,

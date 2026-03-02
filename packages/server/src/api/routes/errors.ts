@@ -28,7 +28,7 @@ export function createErrorsRouter(errorRepo: ErrorRepository, eventRepo: EventR
         pageSize: pageSize ? Number(pageSize) : 50,
       });
     } catch (err) {
-      console.error("[ErrLens] Failed to fetch errors:", err);
+      console.error("[ErrPulse] Failed to fetch errors:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -46,7 +46,7 @@ export function createErrorsRouter(errorRepo: ErrorRepository, eventRepo: EventR
 
       res.json({ error, events });
     } catch (err) {
-      console.error("[ErrLens] Failed to fetch error detail:", err);
+      console.error("[ErrPulse] Failed to fetch error detail:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -79,7 +79,7 @@ export function createErrorsRouter(errorRepo: ErrorRepository, eventRepo: EventR
 
       res.json({ success: true });
     } catch (err) {
-      console.error("[ErrLens] Failed to update error:", err);
+      console.error("[ErrPulse] Failed to update error:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });

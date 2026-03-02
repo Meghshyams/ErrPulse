@@ -1,6 +1,6 @@
 // Types
 export { ErrorSource, Severity, ErrorType, ErrorStatus } from "./types/enums.js";
-export type { StackFrame, ErrLensEvent, ErrorGroup } from "./types/error-event.js";
+export type { StackFrame, ErrPulseEvent, ErrorGroup } from "./types/error-event.js";
 export type { RequestContext } from "./types/request-context.js";
 export type { EnvironmentInfo } from "./types/environment.js";
 export type {

@@ -1,3 +1,3 @@
-export { ErrLensProvider } from "./provider.js";
-export { ErrLensErrorBoundary } from "./components/ErrorBoundary.js";
-export { useErrLens } from "./hooks/useErrLens.js";
+export { ErrPulseProvider } from "./provider.js";
+export { ErrPulseErrorBoundary } from "./components/ErrorBoundary.js";
+export { useErrPulse } from "./hooks/useErrPulse.js";

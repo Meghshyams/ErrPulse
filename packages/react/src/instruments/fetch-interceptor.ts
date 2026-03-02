@@ -5,23 +5,23 @@ import {
   generateEventId,
   CORRELATION_HEADER,
   generateCorrelationId,
-  type ErrLensEvent,
-} from "@errlens/core";
+  type ErrPulseEvent,
+} from "@errpulse/core";
 import { enqueueEvent, getEndpoint, sendRequestLog } from "../client.js";
 
 export function installFetchInterceptor(): () => void {
   const originalFetch = window.fetch;
 
   // Store original so our client can use it
-  (window as unknown as { __errlens_original_fetch: typeof fetch }).__errlens_original_fetch =
+  (window as unknown as { __errpulse_original_fetch: typeof fetch }).__errpulse_original_fetch =
     originalFetch;
 
   window.fetch = async function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
 
-    // Don't intercept calls to ErrLens itself
-    const errLensEndpoint = getEndpoint();
-    if (errLensEndpoint && url.startsWith(errLensEndpoint)) {
+    // Don't intercept calls to ErrPulse itself
+    const errPulseEndpoint = getEndpoint();
+    if (errPulseEndpoint && url.startsWith(errPulseEndpoint)) {
       return originalFetch.call(window, input, init);
     }
 
@@ -54,7 +54,7 @@ export function installFetchInterceptor(): () => void {
 
       // Additionally report 4xx/5xx as error events
       if (response.status >= 400) {
-        const event: ErrLensEvent = {
+        const event: ErrPulseEvent = {
           eventId: generateEventId(),
           timestamp: new Date().toISOString(),
           type: ErrorType.HttpError,
@@ -95,7 +95,7 @@ export function installFetchInterceptor(): () => void {
 
       // Network error event
       const err = error instanceof Error ? error : new Error(String(error));
-      const event: ErrLensEvent = {
+      const event: ErrPulseEvent = {
         eventId: generateEventId(),
         timestamp: new Date().toISOString(),
         type: ErrorType.NetworkError,

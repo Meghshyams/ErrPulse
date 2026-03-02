@@ -1,8 +1,8 @@
-import { EVENTS_ENDPOINT, BATCH_SIZE, BATCH_INTERVAL_MS, type ErrLensEvent } from "@errlens/core";
+import { EVENTS_ENDPOINT, BATCH_SIZE, BATCH_INTERVAL_MS, type ErrPulseEvent } from "@errpulse/core";
 
 let endpoint = "";
 let projectId = "";
-let buffer: ErrLensEvent[] = [];
+let buffer: ErrPulseEvent[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function setEndpoint(url: string): void {
@@ -21,7 +21,7 @@ export function getProjectId(): string {
   return projectId;
 }
 
-async function sendBatch(events: ErrLensEvent[]): Promise<void> {
+async function sendBatch(events: ErrPulseEvent[]): Promise<void> {
   if (!endpoint || events.length === 0) return;
 
   const url =
@@ -31,8 +31,8 @@ async function sendBatch(events: ErrLensEvent[]): Promise<void> {
   try {
     // Use the original fetch to avoid our interceptor
     const originalFetch =
-      (window as unknown as { __errlens_original_fetch?: typeof fetch }).__errlens_original_fetch ||
-      fetch;
+      (window as unknown as { __errpulse_original_fetch?: typeof fetch })
+        .__errpulse_original_fetch || fetch;
     await originalFetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -58,7 +58,7 @@ function flush(): void {
   sendBatch(batch);
 }
 
-export function enqueueEvent(event: ErrLensEvent): void {
+export function enqueueEvent(event: ErrPulseEvent): void {
   if (!endpoint) return;
   if (projectId && !event.projectId) {
     event.projectId = projectId;
@@ -85,8 +85,8 @@ export function sendRequestLog(entry: {
   try {
     const payload = { ...entry, projectId: projectId || undefined };
     const originalFetch =
-      (window as unknown as { __errlens_original_fetch?: typeof fetch }).__errlens_original_fetch ||
-      fetch;
+      (window as unknown as { __errpulse_original_fetch?: typeof fetch })
+        .__errpulse_original_fetch || fetch;
     originalFetch(`${endpoint}${EVENTS_ENDPOINT}/request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

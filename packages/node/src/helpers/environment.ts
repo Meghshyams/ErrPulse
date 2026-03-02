@@ -1,4 +1,4 @@
-import type { EnvironmentInfo } from "@errlens/core";
+import type { EnvironmentInfo } from "@errpulse/core";
 import os from "os";
 
 export function getEnvironment(): EnvironmentInfo {

@@ -1,12 +1,12 @@
-import { DEFAULT_SERVER_URL } from "@errlens/core";
-import type { ErrLensEvent } from "@errlens/core";
+import { DEFAULT_SERVER_URL } from "@errpulse/core";
+import type { ErrPulseEvent } from "@errpulse/core";
 
 export interface NodeSDKConfig {
   serverUrl: string;
   projectId?: string;
   enabled: boolean;
   sampleRate: number;
-  beforeSend?: (event: ErrLensEvent) => ErrLensEvent | null;
+  beforeSend?: (event: ErrPulseEvent) => ErrPulseEvent | null;
   captureConsoleErrors: boolean;
   captureUncaughtExceptions: boolean;
   captureUnhandledRejections: boolean;

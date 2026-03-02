@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import type { ErrLensEvent } from "@errlens/core";
+import type { ErrPulseEvent } from "@errpulse/core";
 
 export interface EventRow {
   id: string;
@@ -21,16 +21,16 @@ export interface EventRow {
   project_id: string | null;
 }
 
-function rowToEvent(row: EventRow): ErrLensEvent {
+function rowToEvent(row: EventRow): ErrPulseEvent {
   return {
     eventId: row.id,
     timestamp: row.timestamp,
-    type: row.type as ErrLensEvent["type"],
+    type: row.type as ErrPulseEvent["type"],
     message: row.message,
     stack: row.stack ?? undefined,
     stackFrames: row.stack_frames ? JSON.parse(row.stack_frames) : undefined,
-    source: row.source as ErrLensEvent["source"],
-    severity: row.severity as ErrLensEvent["severity"],
+    source: row.source as ErrPulseEvent["source"],
+    severity: row.severity as ErrPulseEvent["severity"],
     fingerprint: row.fingerprint,
     request: row.request ? JSON.parse(row.request) : undefined,
     environment: row.environment ? JSON.parse(row.environment) : undefined,
@@ -45,7 +45,7 @@ function rowToEvent(row: EventRow): ErrLensEvent {
 export class EventRepository {
   constructor(private db: Database.Database) {}
 
-  insert(event: ErrLensEvent, errorId: string, fingerprint: string): void {
+  insert(event: ErrPulseEvent, errorId: string, fingerprint: string): void {
     this.db
       .prepare(
         `INSERT INTO error_events (id, error_id, fingerprint, timestamp, type, message,
@@ -74,14 +74,14 @@ export class EventRepository {
       );
   }
 
-  findByErrorId(errorId: string, limit: number = 50): ErrLensEvent[] {
+  findByErrorId(errorId: string, limit: number = 50): ErrPulseEvent[] {
     const rows = this.db
       .prepare("SELECT * FROM error_events WHERE error_id = ? ORDER BY timestamp DESC LIMIT ?")
       .all(errorId, limit) as EventRow[];
     return rows.map(rowToEvent);
   }
 
-  findByCorrelationId(correlationId: string): ErrLensEvent[] {
+  findByCorrelationId(correlationId: string): ErrPulseEvent[] {
     const rows = this.db
       .prepare("SELECT * FROM error_events WHERE correlation_id = ? ORDER BY timestamp ASC")
       .all(correlationId) as EventRow[];

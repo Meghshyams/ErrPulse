@@ -1,4 +1,4 @@
-import type { StackFrame } from "@errlens/core";
+import type { StackFrame } from "@errpulse/core";
 
 const NODE_STACK_RE = /^\s*at\s+(?:(.+?)\s+\()?(.+?):(\d+):(\d+)\)?$/;
 

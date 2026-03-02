@@ -38,7 +38,7 @@ export function createStatsRouter(
         errorsOverTime,
       });
     } catch (err) {
-      console.error("[ErrLens] Failed to fetch stats:", err);
+      console.error("[ErrPulse] Failed to fetch stats:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });

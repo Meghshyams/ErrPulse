@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import type { Project } from "@errlens/core";
+import type { Project } from "@errpulse/core";
 
 interface ProjectRow {
   id: string;
