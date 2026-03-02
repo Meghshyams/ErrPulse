@@ -1,6 +1,6 @@
 {
   "name": "@errpulse/react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ErrPulse React frontend SDK — catch every frontend error automatically",
   "license": "MIT",
   "author": "Meghshyam Sonar",
