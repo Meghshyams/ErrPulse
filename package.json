@@ -1,0 +1,33 @@
+{
+  "name": "errlens-monorepo",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "build": "pnpm -r --filter @errlens/core build && pnpm -r --filter !@errlens/core --filter !errlens-dashboard build",
+    "build:core": "pnpm -r --filter @errlens/core build",
+    "build:server": "pnpm -r --filter @errlens/server build",
+    "build:node": "pnpm -r --filter @errlens/node build",
+    "build:react": "pnpm -r --filter @errlens/react build",
+    "build:cli": "pnpm -r --filter errlens build",
+    "build:dashboard": "pnpm -r --filter errlens-dashboard build",
+    "dev:dashboard": "pnpm -r --filter errlens-dashboard dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "pnpm -r exec rm -rf dist node_modules",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css,md,yml,yaml}": "prettier --write"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.1",
+    "prettier": "^3.8.1",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

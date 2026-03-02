@@ -1,0 +1,39 @@
+import { DEFAULT_SERVER_URL } from "@errlens/core";
+import type { ErrLensEvent } from "@errlens/core";
+
+export interface NodeSDKConfig {
+  serverUrl: string;
+  projectId?: string;
+  enabled: boolean;
+  sampleRate: number;
+  beforeSend?: (event: ErrLensEvent) => ErrLensEvent | null;
+  captureConsoleErrors: boolean;
+  captureUncaughtExceptions: boolean;
+  captureUnhandledRejections: boolean;
+  monitorMemory: boolean;
+  memoryThresholdMB: number;
+  memoryCheckIntervalMs: number;
+}
+
+const defaultConfig: NodeSDKConfig = {
+  serverUrl: DEFAULT_SERVER_URL,
+  enabled: true,
+  sampleRate: 1.0,
+  captureConsoleErrors: true,
+  captureUncaughtExceptions: true,
+  captureUnhandledRejections: true,
+  monitorMemory: true,
+  memoryThresholdMB: 512,
+  memoryCheckIntervalMs: 30000,
+};
+
+let currentConfig: NodeSDKConfig = { ...defaultConfig };
+
+export function configure(partial: Partial<NodeSDKConfig>): NodeSDKConfig {
+  currentConfig = { ...currentConfig, ...partial };
+  return currentConfig;
+}
+
+export function getConfig(): NodeSDKConfig {
+  return currentConfig;
+}

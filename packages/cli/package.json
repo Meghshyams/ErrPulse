@@ -1,0 +1,23 @@
+{
+  "name": "errlens",
+  "version": "0.1.0",
+  "description": "ErrLens — the error monitoring tool that runs with one command",
+  "type": "module",
+  "bin": {
+    "errlens": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "@errlens/server": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3"
+  }
+}
