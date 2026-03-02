@@ -24,7 +24,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,css,md,yml,yaml}": "prettier --write"
+    "*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,json,css,md,yml,yaml,html,svg,vue}": "prettier --write"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",

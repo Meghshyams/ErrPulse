@@ -87,9 +87,7 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [
-      { icon: "github", link: "https://github.com/Meghshyams/ErrPulse" },
-    ],
+    socialLinks: [{ icon: "github", link: "https://github.com/Meghshyams/ErrPulse" }],
 
     search: {
       provider: "local",
@@ -101,8 +99,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern:
-        "https://github.com/Meghshyams/ErrPulse/edit/main/docs/:path",
+      pattern: "https://github.com/Meghshyams/ErrPulse/edit/main/docs/:path",
       text: "Edit this page on GitHub",
     },
   },
