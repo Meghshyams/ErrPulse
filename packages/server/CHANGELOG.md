@@ -1,5 +1,12 @@
 # @errpulse/server
 
+## 0.1.3
+
+### Patch Changes
+
+- cbc091a: Fix dashboard not loading when installed from npm by including dashboard build in release workflow
+  - @errpulse/core@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
