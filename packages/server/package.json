@@ -1,6 +1,6 @@
 {
   "name": "@errpulse/server",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "ErrPulse server — Express API + SQLite + WebSocket",
   "license": "MIT",
   "author": "Meghshyam Sonar",
