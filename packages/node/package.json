@@ -17,7 +17,13 @@
     "express",
     "nextjs",
     "backend",
-    "errpulse"
+    "errpulse",
+    "debugging",
+    "error-handler",
+    "middleware",
+    "uncaught-exception",
+    "console-log",
+    "devtools"
   ],
   "publishConfig": {
     "access": "public"

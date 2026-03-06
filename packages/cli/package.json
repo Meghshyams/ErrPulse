@@ -16,7 +16,14 @@
     "cli",
     "developer-tools",
     "errpulse",
-    "sentry-alternative"
+    "sentry-alternative",
+    "debugging",
+    "devtools",
+    "localhost",
+    "dashboard",
+    "console-log",
+    "error-handler",
+    "local-development"
   ],
   "publishConfig": {
     "access": "public"
