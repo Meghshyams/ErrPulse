@@ -16,7 +16,13 @@
     "express",
     "sqlite",
     "websocket",
-    "errpulse"
+    "errpulse",
+    "debugging",
+    "devtools",
+    "dashboard",
+    "real-time",
+    "localhost",
+    "local-development"
   ],
   "publishConfig": {
     "access": "public"

@@ -16,7 +16,13 @@
     "react",
     "error-boundary",
     "frontend",
-    "errpulse"
+    "errpulse",
+    "debugging",
+    "error-handler",
+    "devtools",
+    "console-log",
+    "fetch-error",
+    "react-error-boundary"
   ],
   "publishConfig": {
     "access": "public"
