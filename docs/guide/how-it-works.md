@@ -13,12 +13,12 @@ Your Backend (Express/Next)       Your Frontend (React)
 | - unhandled rejections    |     | - fetch / XHR failures    |
 | - console.error           |     | - React component crashes |
 | - memory warnings         |     | - resource load failures  |
-+---------------------------+     +---------------------------+
-              |                                               |
-              |       <-- correlation ID header -->            |
-              |                                               |
-              +------------- POST /api/events ----------------+
-                             (batched, 100ms)
++-------------+-------------+     +-------------+-------------+
+              |                                 |
+              |  <-- correlation ID header -->  |
+              |                                 |
+              +---- POST /api/events -----------+
+                       (batched, 100ms)
                              |
                              v
               +-----------------------------+
