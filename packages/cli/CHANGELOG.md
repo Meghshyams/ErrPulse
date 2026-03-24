@@ -1,5 +1,12 @@
 # errpulse
 
+## 0.2.0
+
+### Patch Changes
+
+- Updated dependencies [9bd2a11]
+  - @errpulse/server@0.2.0
+
 ## 0.1.4
 
 ### Patch Changes
