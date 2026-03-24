@@ -14,10 +14,10 @@ Your Backend (Express/Next)       Your Frontend (React)
 | - console.error           |     | - React component crashes |
 | - memory warnings         |     | - resource load failures  |
 +-------------+-------------+     +-------------+-------------+
-              |                                   |
-              |    <-- correlation ID header -->   |
-              |                                   |
-              +------- POST /api/events ----------+
+              |                                 |
+              |  <-- correlation ID header -->  |
+              |                                 |
+              +---- POST /api/events -----------+
                        (batched, 100ms)
                              |
                              v
