@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useProject } from "../context/ProjectContext";
 import { fetchJSON } from "../lib/api";
-import { Globe } from "lucide-react";
+import { Globe, AlertTriangle } from "lucide-react";
 import { cn, timeAgo } from "../lib/utils";
+import { EmptyState } from "../components/EmptyState";
 
 interface RequestEntry {
   id: string;
@@ -13,6 +15,7 @@ interface RequestEntry {
   duration: number;
   timestamp: string;
   correlationId?: string;
+  errorEventId?: string;
 }
 
 const METHOD_COLORS: Record<string, string> = {
@@ -87,7 +90,8 @@ export function RequestsPage() {
       {/* Table */}
       <div className="bg-card/80 border border-border/50 rounded-lg overflow-hidden">
         {/* Header row */}
-        <div className="grid grid-cols-[80px_60px_1fr_60px_80px_100px] items-center gap-3 px-4 py-2 border-b border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+        <div className="grid grid-cols-[24px_80px_60px_1fr_60px_80px_100px] items-center gap-3 px-4 py-2 border-b border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+          <span />
           <span>Method</span>
           <span>Status</span>
           <span>URL</span>
@@ -108,49 +112,79 @@ export function RequestsPage() {
             ))}
           </div>
         ) : requests.length === 0 ? (
-          <div className="py-16 text-center">
-            <Globe className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">No requests logged yet</p>
-            <p className="text-xs text-muted-foreground/60 mt-1">
-              Install the SDK middleware to start tracking requests
-            </p>
-          </div>
+          <EmptyState
+            icon={<Globe className="w-5 h-5 text-muted-foreground/40" />}
+            title="No requests logged yet"
+            description="Add the Express middleware to start tracking HTTP requests automatically."
+            installCommand="npm install @errpulse/node"
+          />
         ) : (
-          requests.map((req, i) => (
-            <div
-              key={req.id}
-              className="animate-fade-up grid grid-cols-[80px_60px_1fr_60px_80px_100px] items-center gap-3 px-4 py-2.5 border-b border-border/30 last:border-0 hover:bg-muted/20 transition-colors"
-              style={{ animationDelay: `${i * 20}ms` }}
-            >
-              <span
+          requests.map((req, i) => {
+            const hasError = !!req.errorEventId;
+            const row = (
+              <div
+                key={req.id}
                 className={cn(
-                  "text-[12px] font-mono font-semibold",
-                  METHOD_COLORS[req.method] ?? "text-muted-foreground"
+                  "animate-fade-up grid grid-cols-[24px_80px_60px_1fr_60px_80px_100px] items-center gap-3 px-4 py-2.5 border-b border-border/30 last:border-0 hover:bg-muted/20 transition-colors",
+                  hasError && "bg-destructive/[0.03]"
                 )}
+                style={{ animationDelay: `${i * 20}ms` }}
               >
-                {req.method}
-              </span>
-              <StatusBadge code={req.statusCode} />
-              <span className="text-[12px] font-mono text-muted-foreground truncate">
-                {req.url}
-              </span>
-              <span className="text-[11px] font-mono text-muted-foreground text-right tabular-nums">
-                {req.duration ? `${req.duration}ms` : "—"}
-              </span>
-              <span className="text-[11px] font-mono text-muted-foreground text-right tabular-nums">
-                {req.duration
-                  ? req.duration < 100
-                    ? "fast"
-                    : req.duration < 500
-                      ? "ok"
-                      : "slow"
-                  : "—"}
-              </span>
-              <span className="text-[11px] text-muted-foreground text-right">
-                {timeAgo(req.timestamp)}
-              </span>
-            </div>
-          ))
+                {/* Error indicator */}
+                <div className="flex items-center justify-center">
+                  {hasError ? (
+                    <AlertTriangle className="w-3.5 h-3.5 text-destructive/70" />
+                  ) : (
+                    <span />
+                  )}
+                </div>
+
+                <span
+                  className={cn(
+                    "text-[12px] font-mono font-semibold",
+                    METHOD_COLORS[req.method] ?? "text-muted-foreground"
+                  )}
+                >
+                  {req.method}
+                </span>
+                <StatusBadge code={req.statusCode} />
+                <span className="text-[12px] font-mono text-muted-foreground truncate">
+                  {req.url}
+                </span>
+                <span className="text-[11px] font-mono text-muted-foreground text-right tabular-nums">
+                  {req.duration ? `${req.duration}ms` : "—"}
+                </span>
+                <span className="text-[11px] font-mono text-muted-foreground text-right tabular-nums">
+                  {req.duration
+                    ? req.duration < 100
+                      ? "fast"
+                      : req.duration < 500
+                        ? "ok"
+                        : "slow"
+                    : "—"}
+                </span>
+                <span className="text-[11px] text-muted-foreground text-right">
+                  {timeAgo(req.timestamp)}
+                </span>
+              </div>
+            );
+
+            // If request has an associated error, wrap with a link to find it
+            if (hasError && req.correlationId) {
+              return (
+                <Link
+                  key={req.id}
+                  to={`/errors`}
+                  title="This request triggered an error — click to view errors"
+                  className="block"
+                >
+                  {row}
+                </Link>
+              );
+            }
+
+            return row;
+          })
         )}
       </div>
     </div>

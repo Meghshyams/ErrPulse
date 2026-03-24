@@ -36,7 +36,7 @@ function ExplanationCard({ explanation }: { explanation: Explanation }) {
         <span className="text-sm font-semibold text-primary">{explanation.title}</span>
       </div>
       <p className="text-[13px] text-foreground/80 leading-relaxed">{explanation.explanation}</p>
-      <div className="bg-background/50 rounded-md p-3 border border-border/30">
+      <div className="bg-muted/50 rounded-md p-3 border border-border/30">
         <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium block mb-1">
           Suggestion
         </span>

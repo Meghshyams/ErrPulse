@@ -9,7 +9,8 @@ export function createErrorsRouter(errorRepo: ErrorRepository, eventRepo: EventR
   // GET /api/errors — list error groups
   router.get("/", (req, res) => {
     try {
-      const { status, source, severity, type, search, page, pageSize, projectId } = req.query;
+      const { status, source, severity, type, search, page, pageSize, projectId, timeRange } =
+        req.query;
       const result = errorRepo.findAll({
         status: status as string,
         source: source as string,
@@ -17,6 +18,7 @@ export function createErrorsRouter(errorRepo: ErrorRepository, eventRepo: EventR
         type: type as string,
         search: search as string,
         projectId: projectId as string,
+        timeRange: timeRange as string,
         page: page ? Number(page) : undefined,
         pageSize: pageSize ? Number(pageSize) : undefined,
       });
@@ -29,6 +31,24 @@ export function createErrorsRouter(errorRepo: ErrorRepository, eventRepo: EventR
       });
     } catch (err) {
       console.error("[ErrPulse] Failed to fetch errors:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET /api/errors/trends — get sparkline trend data for error IDs
+  router.get("/trends", (req, res) => {
+    try {
+      const { ids, hours } = req.query;
+      if (!ids) {
+        res.json({ trends: {} });
+        return;
+      }
+      const errorIds = (ids as string).split(",").filter(Boolean);
+      const h = hours ? Number(hours) : 24;
+      const trends = eventRepo.getTrendsForErrors(errorIds, h);
+      res.json({ trends });
+    } catch (err) {
+      console.error("[ErrPulse] Failed to fetch trends:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });

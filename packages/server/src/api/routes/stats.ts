@@ -3,6 +3,13 @@ import { ErrorRepository } from "../../db/repositories/error-repository.js";
 import { EventRepository } from "../../db/repositories/event-repository.js";
 import { RequestRepository } from "../../db/repositories/request-repository.js";
 
+const TIME_RANGE_HOURS: Record<string, number> = {
+  "1h": 1,
+  "6h": 6,
+  "24h": 24,
+  "7d": 168,
+};
+
 export function createStatsRouter(
   errorRepo: ErrorRepository,
   eventRepo: EventRepository,
@@ -14,6 +21,9 @@ export function createStatsRouter(
   router.get("/", (req, res) => {
     try {
       const projectId = req.query.projectId as string | undefined;
+      const timeRange = req.query.timeRange as string | undefined;
+      const hours = timeRange ? (TIME_RANGE_HOURS[timeRange] ?? 24) : 24;
+
       const totalRequests = requestRepo.getTotalCount(projectId);
       const errorRequests = requestRepo.getErrorCount(projectId);
       const healthScore =
@@ -25,7 +35,7 @@ export function createStatsRouter(
       const topErrors = errorRepo.getTopErrors(5, projectId);
       const errorsByType = errorRepo.getCountByType(projectId);
       const errorsBySource = errorRepo.getCountBySource(projectId);
-      const errorsOverTime = eventRepo.getErrorsOverTime(24, projectId);
+      const errorsOverTime = eventRepo.getErrorsOverTime(hours, projectId);
 
       res.json({
         totalRequests,

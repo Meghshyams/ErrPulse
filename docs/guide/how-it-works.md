@@ -4,37 +4,41 @@ This page explains ErrPulse's architecture, error fingerprinting, event batching
 
 ## Architecture
 
-```
-┌──────────────────┐     ┌──────────────────┐
-│   Your Backend   │     │   Your Frontend  │
-│  (Express/Next)  │     │     (React)      │
-│                  │     │                  │
-│  @errpulse/node  │     │  @errpulse/react │
-└────────┬─────────┘     └────────┬─────────┘
-         │                        │
-         │  POST /api/events      │  POST /api/events
-         │  POST /api/events/req  │  POST /api/events/batch
-         │                        │
-         └────────┬───────────────┘
-                  │
-                  ▼
-       ┌─────────────────────┐
-       │   ErrPulse Server   │
-       │   (@errpulse/server)│
-       │                     │
-       │  ┌───────────────┐  │
-       │  │  REST API      │  │
-       │  ├───────────────┤  │
-       │  │  Engine        │  │ ← Fingerprinting, grouping,
-       │  │  (ingest)      │  │   explanation matching
-       │  ├───────────────┤  │
-       │  │  SQLite + WAL  │  │ ← ~/.errpulse/errpulse.db
-       │  ├───────────────┤  │
-       │  │  WebSocket     │  │ ← Real-time broadcast
-       │  ├───────────────┤  │
-       │  │  Dashboard     │  │ ← React SPA at /
-       │  └───────────────┘  │
-       └─────────────────────┘
+```mermaid
+flowchart TB
+    subgraph apps ["Your Applications"]
+        direction LR
+        BE["Backend<br/><small>Express / Next.js</small>"]
+        FE["Frontend<br/><small>React</small>"]
+    end
+
+    subgraph sdks ["SDKs <small>(auto-capture + batching)</small>"]
+        direction LR
+        NS["@errpulse/node<br/><small>exceptions · rejections<br/>console.error · memory</small>"]
+        RS["@errpulse/react<br/><small>runtime errors · fetch<br/>React crashes · XHR</small>"]
+    end
+
+    subgraph server ["ErrPulse Server <small>(localhost:3800)</small>"]
+        API["REST API<br/><small>/api/events · /api/errors<br/>/api/stats · /api/requests</small>"]
+        ENG["Ingest Engine<br/><small>fingerprinting · grouping<br/>explanation matching</small>"]
+        DB[("SQLite + WAL<br/><small>~/.errpulse/errpulse.db</small>")]
+        WS["WebSocket<br/><small>real-time broadcast</small>"]
+    end
+
+    subgraph dash ["Dashboard"]
+        UI["React SPA<br/><small>Overview · Errors · Requests<br/>Light/Dark · Keyboard shortcuts</small>"]
+    end
+
+    BE --> NS
+    FE --> RS
+    NS -- "POST /api/events<br/><small>batched, 100ms window</small>" --> API
+    RS -- "POST /api/events<br/><small>batched, sendBeacon on unload</small>" --> API
+    RS -. "X-ErrPulse-Correlation-ID<br/><small>in every fetch/XHR</small>" .-> NS
+    API --> ENG
+    ENG --> DB
+    ENG --> WS
+    WS -- "live updates" --> UI
+    UI -- "REST queries" --> API
 ```
 
 ## Monorepo Structure

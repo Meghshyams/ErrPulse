@@ -110,6 +110,7 @@ export class ErrorRepository {
     type?: string;
     search?: string;
     projectId?: string;
+    timeRange?: string;
     page?: number;
     pageSize?: number;
   }): { errors: ErrorGroup[]; total: number } {
@@ -139,6 +140,20 @@ export class ErrorRepository {
     if (options.projectId) {
       conditions.push("project_id = ?");
       params.push(options.projectId);
+    }
+    if (options.timeRange) {
+      const hoursMap: Record<string, number> = {
+        "1h": 1,
+        "6h": 6,
+        "24h": 24,
+        "7d": 168,
+      };
+      const hours = hoursMap[options.timeRange];
+      if (hours) {
+        const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+        conditions.push("last_seen >= ?");
+        params.push(since);
+      }
     }
 
     const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";

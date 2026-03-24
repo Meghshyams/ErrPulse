@@ -75,7 +75,15 @@ export function useErrors(filters?: Record<string, string>) {
     load();
   }, [load]);
 
-  return { ...data, loading, reload: load };
+  const updateErrorStatus = useCallback(
+    async (errorId: string, status: string) => {
+      await patchJSON(`/api/errors/${errorId}`, { status });
+      load();
+    },
+    [load]
+  );
+
+  return { ...data, loading, reload: load, updateErrorStatus };
 }
 
 export function useErrorDetail(id: string) {

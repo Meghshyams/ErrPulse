@@ -10,8 +10,10 @@ The main dashboard shows:
 - **Error count** — total errors in the last 24 hours
 - **Request count** — total tracked HTTP requests
 - **Error rate** — percentage of requests that resulted in errors
+- **Needs Attention** — a highlighted section showing unresolved errors sorted by frequency, with inline quick actions to resolve/acknowledge/ignore without leaving the overview
 - **Real-time error feed** — new errors appear instantly via WebSocket
-- **Errors over time** — hourly bar chart showing error frequency over the last 24 hours
+- **Errors over time** — bar chart showing error frequency over the selected time range
+- **Time range selector** — switch between 1h, 6h, 24h, 7d, or all-time views
 
 ## Errors Page
 
@@ -23,6 +25,7 @@ A filterable, searchable list of all error groups:
 - **Source** — Backend, Frontend
 - **Status** — Unresolved, Acknowledged, Resolved, Ignored
 - **Search** — full-text search on error messages
+- **Time range** — 1h, 6h, 24h, 7d, or All
 
 ### Error List
 
@@ -30,10 +33,25 @@ Each row shows:
 
 - Error type icon and severity badge
 - Error message (truncated)
+- **Sparkline trend** — inline mini chart showing error frequency over the selected time range
 - Source (backend/frontend)
-- First seen / last seen timestamps
-- Occurrence count
 - Current status
+- Occurrence count and last seen time
+- **Inline quick actions** — resolve, acknowledge, or ignore on hover without navigating to the detail page
+
+### Keyboard Shortcuts
+
+The errors page supports keyboard navigation:
+
+| Key       | Action                            |
+| --------- | --------------------------------- |
+| `j` / `k` | Navigate down / up through errors |
+| `Enter`   | Open the selected error detail    |
+| `r`       | Resolve the selected error        |
+| `a`       | Acknowledge the selected error    |
+| `i`       | Ignore the selected error         |
+| `/`       | Focus the search input            |
+| `Esc`     | Blur the search input             |
 
 Pagination is supported with 50 errors per page.
 
@@ -76,15 +94,16 @@ Change the error's status:
 
 An HTTP request log showing all tracked requests:
 
-| Column    | Description                   |
-| --------- | ----------------------------- |
-| Method    | HTTP method (GET, POST, etc.) |
-| URL       | Request URL path              |
-| Status    | HTTP status code              |
-| Duration  | Response time in milliseconds |
-| Timestamp | When the request was made     |
+| Column          | Description                                        |
+| --------------- | -------------------------------------------------- |
+| Error indicator | Red warning icon if the request triggered an error |
+| Method          | HTTP method (GET, POST, etc.)                      |
+| URL             | Request URL path                                   |
+| Status          | HTTP status code                                   |
+| Duration        | Response time in milliseconds                      |
+| Timestamp       | When the request was made                          |
 
-Requests that resulted in errors are highlighted and linked to the corresponding error detail page.
+Requests that resulted in errors are highlighted with a visual indicator and linked to the errors page.
 
 ## Project Selector
 
@@ -93,6 +112,26 @@ When you have multiple projects sending errors to ErrPulse, the dashboard shows 
 - Click the project icon in the sidebar to open the project list
 - Select a project to filter all views (overview, errors, requests) to that project only
 - Select "All Projects" to see everything
+
+## Light / Dark Mode
+
+Toggle between light and dark themes using the sun/moon icon in the sidebar. Your preference is saved to localStorage and persists across sessions.
+
+- **Dark mode**: Near-black background with zinc tones (default)
+- **Light mode**: Warm off-white background with stone tones
+
+## Favicon Badge
+
+When the dashboard tab is not focused, a red notification badge appears on the favicon showing the count of new errors that arrived while you were away. The badge resets automatically when you switch back to the tab.
+
+## Toast Notifications
+
+When a new error is detected, a toast notification slides in from the top-right corner:
+
+- Shows the error message and severity
+- Auto-dismisses after 4 seconds
+- Stacks up to 3 notifications
+- Dismissible with the close button
 
 ## Real-Time Updates
 
