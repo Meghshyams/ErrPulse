@@ -4,41 +4,51 @@ This page explains ErrPulse's architecture, error fingerprinting, event batching
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    subgraph apps ["Your Applications"]
-        direction LR
-        BE["Backend<br/><small>Express / Next.js</small>"]
-        FE["Frontend<br/><small>React</small>"]
-    end
-
-    subgraph sdks ["SDKs <small>(auto-capture + batching)</small>"]
-        direction LR
-        NS["@errpulse/node<br/><small>exceptions · rejections<br/>console.error · memory</small>"]
-        RS["@errpulse/react<br/><small>runtime errors · fetch<br/>React crashes · XHR</small>"]
-    end
-
-    subgraph server ["ErrPulse Server <small>(localhost:3800)</small>"]
-        API["REST API<br/><small>/api/events · /api/errors<br/>/api/stats · /api/requests</small>"]
-        ENG["Ingest Engine<br/><small>fingerprinting · grouping<br/>explanation matching</small>"]
-        DB[("SQLite + WAL<br/><small>~/.errpulse/errpulse.db</small>")]
-        WS["WebSocket<br/><small>real-time broadcast</small>"]
-    end
-
-    subgraph dash ["Dashboard"]
-        UI["React SPA<br/><small>Overview · Errors · Requests<br/>Light/Dark · Keyboard shortcuts</small>"]
-    end
-
-    BE --> NS
-    FE --> RS
-    NS -- "POST /api/events<br/><small>batched, 100ms window</small>" --> API
-    RS -- "POST /api/events<br/><small>batched, sendBeacon on unload</small>" --> API
-    RS -. "X-ErrPulse-Correlation-ID<br/><small>in every fetch/XHR</small>" .-> NS
-    API --> ENG
-    ENG --> DB
-    ENG --> WS
-    WS -- "live updates" --> UI
-    UI -- "REST queries" --> API
+```
+┌─────────────────────┐       ┌─────────────────────┐
+│   Your Backend       │       │   Your Frontend      │
+│   (Express / Next)   │       │   (React)            │
+│                      │       │                      │
+│   @errpulse/node     │       │   @errpulse/react    │
+│   ▸ exceptions       │       │   ▸ runtime errors   │
+│   ▸ rejections       │  ◄──── ▸ correlation ID ────►│
+│   ▸ console.error    │       │   ▸ fetch / XHR      │
+│   ▸ memory warnings  │       │   ▸ React crashes    │
+└──────────┬──────────┘       └──────────┬──────────┘
+           │ POST /api/events             │
+           │ (batched, 100ms)             │
+           └──────────┬───────────────────┘
+                      │
+                      ▼
+        ┌──────────────────────────┐
+        │     ErrPulse Server       │
+        │     localhost:3800        │
+        │                          │
+        │  ┌────────────────────┐  │
+        │  │ REST API            │  │
+        │  │ /events /errors     │  │
+        │  │ /stats  /requests   │  │
+        │  ├────────────────────┤  │
+        │  │ Ingest Engine       │  │
+        │  │ fingerprint → group │  │
+        │  │ → explain → store   │  │
+        │  ├────────────────────┤  │
+        │  │ SQLite + WAL        │  │
+        │  │ ~/.errpulse/        │  │
+        │  ├────────────────────┤  │
+        │  │ WebSocket           │◄─── real-time broadcast
+        │  └────────────────────┘  │
+        └─────────────┬────────────┘
+                      │
+                      ▼
+        ┌──────────────────────────┐
+        │     Dashboard (React)     │
+        │                          │
+        │  Overview · Errors        │
+        │  Requests · Detail        │
+        │  Light/Dark · Shortcuts   │
+        │  Toasts · Favicon badge   │
+        └──────────────────────────┘
 ```
 
 ## Monorepo Structure
