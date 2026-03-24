@@ -1,8 +1,9 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useProject } from "../context/ProjectContext";
+import { useTheme } from "../context/ThemeContext";
 import { useState, useCallback, useRef, useEffect } from "react";
-import { LayoutDashboard, AlertTriangle, Globe, Activity, BookOpen } from "lucide-react";
+import { LayoutDashboard, AlertTriangle, Globe, Activity, BookOpen, Sun, Moon } from "lucide-react";
 import { cn } from "../lib/utils";
 
 const NAV_ITEMS = [
@@ -43,6 +44,7 @@ export function Layout() {
   const [projectPopover, setProjectPopover] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const { projects, selectedProjectId, setProjectId } = useProject();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
   const handleMessage = useCallback(() => {
@@ -73,10 +75,12 @@ export function Layout() {
       item.end ? location.pathname === item.to : location.pathname.startsWith(item.to)
     )?.label ?? "Overview";
 
+  const isDark = theme === "dark";
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Icon Rail */}
-      <aside className="w-[52px] flex-shrink-0 bg-[#08080a] flex flex-col items-center border-r border-border/30">
+      <aside className="w-[52px] flex-shrink-0 bg-sidebar flex flex-col items-center border-r border-border/40">
         {/* Brand mark */}
         <div className="h-[52px] flex items-center justify-center">
           <div className="w-8 h-8 rounded-[10px] bg-primary/10 border border-primary/25 flex items-center justify-center">
@@ -97,13 +101,12 @@ export function Layout() {
                   "group relative w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-150",
                   isActive
                     ? "text-primary"
-                    : "text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.04]"
+                    : "text-muted-foreground/60 hover:text-foreground hover:bg-hover"
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  {/* Active indicator bar */}
                   {isActive && (
                     <div className="absolute left-[-14px] w-[3px] h-4 rounded-r-full bg-primary" />
                   )}
@@ -114,8 +117,21 @@ export function Layout() {
           ))}
         </nav>
 
-        {/* Bottom: Project selector + Live status */}
+        {/* Bottom: Theme toggle + Project selector + Live status */}
         <div className="flex flex-col items-center gap-3 pb-4">
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-hover transition-all duration-150"
+          >
+            {isDark ? (
+              <Sun className="w-[18px] h-[18px]" strokeWidth={1.8} />
+            ) : (
+              <Moon className="w-[18px] h-[18px]" strokeWidth={1.8} />
+            )}
+          </button>
+
           {/* Project initial */}
           {projects.length > 0 && (
             <div className="relative" ref={popoverRef}>
@@ -126,9 +142,11 @@ export function Layout() {
                 style={{
                   backgroundColor: selectedProject
                     ? getProjectColor(selectedProject.name) + "20"
-                    : "#ffffff08",
-                  color: selectedProject ? getProjectColor(selectedProject.name) : "#a1a1aa",
-                  border: `1.5px solid ${selectedProject ? getProjectColor(selectedProject.name) + "40" : "#ffffff10"}`,
+                    : "var(--hover)",
+                  color: selectedProject
+                    ? getProjectColor(selectedProject.name)
+                    : "var(--muted-fg)",
+                  border: `1.5px solid ${selectedProject ? getProjectColor(selectedProject.name) + "40" : "var(--border-c)"}`,
                 }}
               >
                 {selectedProject ? getInitials(selectedProject.name) : "ALL"}
@@ -136,7 +154,7 @@ export function Layout() {
 
               {/* Project popover */}
               {projectPopover && (
-                <div className="absolute bottom-0 left-[calc(100%+8px)] z-50 w-48 bg-[#111113] border border-border/50 rounded-lg shadow-2xl shadow-black/50 py-1.5 animate-fade-up">
+                <div className="absolute bottom-0 left-[calc(100%+8px)] z-50 w-48 bg-surface border border-border/60 rounded-lg shadow-2xl shadow-black/20 py-1.5 animate-fade-up">
                   <div className="px-3 py-1.5 text-[10px] font-medium tracking-widest uppercase text-muted-foreground/50">
                     Projects
                   </div>
@@ -146,11 +164,11 @@ export function Layout() {
                       setProjectPopover(false);
                     }}
                     className={cn(
-                      "w-full text-left px-3 py-2 text-[12px] flex items-center gap-2.5 hover:bg-white/[0.04] transition-colors",
+                      "w-full text-left px-3 py-2 text-[12px] flex items-center gap-2.5 hover:bg-hover transition-colors",
                       !selectedProjectId ? "text-foreground" : "text-muted-foreground"
                     )}
                   >
-                    <div className="w-5 h-5 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-[8px] font-bold text-muted-foreground">
+                    <div className="w-5 h-5 rounded-full bg-hover border border-border/50 flex items-center justify-center text-[8px] font-bold text-muted-foreground">
                       *
                     </div>
                     All Projects
@@ -168,7 +186,7 @@ export function Layout() {
                           setProjectPopover(false);
                         }}
                         className={cn(
-                          "w-full text-left px-3 py-2 text-[12px] flex items-center gap-2.5 hover:bg-white/[0.04] transition-colors",
+                          "w-full text-left px-3 py-2 text-[12px] flex items-center gap-2.5 hover:bg-hover transition-colors",
                           selectedProjectId === project.id
                             ? "text-foreground"
                             : "text-muted-foreground"
@@ -202,7 +220,7 @@ export function Layout() {
             target="_blank"
             rel="noopener noreferrer"
             title="Documentation"
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.04] transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-hover transition-all"
           >
             <BookOpen className="w-[18px] h-[18px]" strokeWidth={1.8} />
           </a>
@@ -227,10 +245,10 @@ export function Layout() {
       {/* Main area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Slim top bar */}
-        <header className="h-11 flex items-center px-5 border-b border-border/30 bg-[#08080a]/50 flex-shrink-0">
+        <header className="h-11 flex items-center px-5 border-b border-border/40 bg-sidebar/50 flex-shrink-0">
           <span className="text-[13px] font-medium text-foreground/80">{pageTitle}</span>
           {selectedProject && (
-            <span className="ml-3 text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/[0.04] text-muted-foreground border border-border/30">
+            <span className="ml-3 text-[11px] font-mono px-2 py-0.5 rounded-full bg-hover text-muted-foreground border border-border/40">
               {selectedProject.name}
             </span>
           )}

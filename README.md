@@ -221,11 +221,15 @@ function MyComponent() {
 
 The dashboard runs at `http://localhost:3800` and provides:
 
-- **Overview**: Health score donut, error count, request count, error rate, real-time error feed, errors-over-time chart
-- **Errors**: Filterable list by severity, source (backend/frontend), status. Search by message. Click for detail view
-- **Error Detail**: Plain-English explanation, stack trace viewer with in-app frame highlighting, event timeline, status management (resolve/ignore/acknowledge)
-- **Requests**: HTTP request log with method, URL, status code, duration, timing
+- **Overview**: Health score donut, error count, request count, error rate, "Needs Attention" section for unresolved errors, real-time error feed, errors-over-time chart
+- **Errors**: Filterable list by severity, source, status, and time range (1h/6h/24h/7d). Inline sparkline trends per error. Search by message. Inline quick actions (resolve/acknowledge/ignore) on hover — no need to click into detail view
+- **Error Detail**: Plain-English explanation, stack trace viewer with in-app frame highlighting, event timeline, status management
+- **Requests**: HTTP request log with method, URL, status code, duration, timing. Error-linked requests are flagged with a visual indicator
 - **Project Selector**: Filter all views by project when monitoring multiple apps
+- **Light/Dark Mode**: Toggle between themes, persisted to localStorage
+- **Keyboard Shortcuts**: `j`/`k` navigate errors, `r` resolve, `a` acknowledge, `i` ignore, `/` search
+- **Favicon Badge**: Error count notification dot when the tab is not focused
+- **Toast Notifications**: Real-time popups when new errors arrive
 
 Built with React + Tailwind CSS + WebSocket for real-time updates.
 
@@ -255,15 +259,47 @@ Projects are auto-registered on first event — no manual setup required.
 ## Architecture
 
 ```
-Your App (Backend)           Your App (Frontend)
-      │                              │
-  @errpulse/node               @errpulse/react
-      │                              │
-      └──────── HTTP POST ───────────┘
-                    │
-          ErrPulse Server (@errpulse/server)
-            │           │
-         SQLite    WebSocket ──→ Dashboard UI
+Your Backend (Express/Next)       Your Frontend (React)
++---------------------------+     +---------------------------+
+| @errpulse/node            |     | @errpulse/react           |
+|                           |     |                           |
+| - uncaught exceptions     |     | - runtime errors          |
+| - unhandled rejections    |     | - fetch / XHR failures    |
+| - console.error           |     | - React component crashes |
+| - memory warnings         |     | - resource load failures  |
++-------------+-------------+     +-------------+-------------+
+              |                                 |
+              |  <-- correlation ID header -->  |
+              |                                 |
+              +---- POST /api/events -----------+
+                       (batched, 100ms)
+                             |
+                             v
+              +-----------------------------+
+              |      ErrPulse Server        |
+              |      localhost:3800         |
+              |                             |
+              |  - REST API                 |
+              |  - Ingest engine            |
+              |    (fingerprint, group,     |
+              |     explain, store)         |
+              |  - SQLite + WAL             |
+              |    (~/.errpulse/errpulse.db)|
+              |  - WebSocket broadcast      |
+              +-------------+---------------+
+                            |
+                            v
+              +-----------------------------+
+              |    Dashboard (React SPA)    |
+              |                             |
+              |  - Overview + health score  |
+              |  - Errors + sparklines      |
+              |  - Requests + error linking |
+              |  - Light/dark theme         |
+              |  - Keyboard shortcuts       |
+              |  - Toast notifications      |
+              |  - Favicon error badge      |
+              +-----------------------------+
 ```
 
 ### Monorepo Structure
@@ -303,6 +339,7 @@ All endpoints are served from the ErrPulse server (default `http://localhost:380
 | `POST`  | `/api/events/batch`   | Ingest multiple events          |
 | `POST`  | `/api/events/request` | Log an HTTP request             |
 | `GET`   | `/api/errors`         | List error groups (filterable)  |
+| `GET`   | `/api/errors/trends`  | Sparkline trend data for errors |
 | `GET`   | `/api/errors/:id`     | Error detail with event history |
 | `PATCH` | `/api/errors/:id`     | Update error status             |
 | `GET`   | `/api/requests`       | List HTTP requests              |

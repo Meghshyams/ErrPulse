@@ -25,3 +25,14 @@ export async function postJSON<T>(url: string, body?: unknown): Promise<T> {
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json() as Promise<T>;
 }
+
+export async function fetchTrends(
+  errorIds: string[],
+  hours: number = 24
+): Promise<Record<string, number[]>> {
+  if (errorIds.length === 0) return {};
+  const data = await fetchJSON<{ trends: Record<string, number[]> }>(
+    `/api/errors/trends?ids=${errorIds.join(",")}&hours=${hours}`
+  );
+  return data.trends;
+}

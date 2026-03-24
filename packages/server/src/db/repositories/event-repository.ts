@@ -104,6 +104,41 @@ export class EventRepository {
     return result.count;
   }
 
+  getTrendsForErrors(errorIds: string[], hours: number = 24): Record<string, number[]> {
+    if (errorIds.length === 0) return {};
+
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+    const bucketCount = Math.min(hours, 12);
+    const bucketMs = (hours * 60 * 60 * 1000) / bucketCount;
+    const now = Date.now();
+
+    // Get all events for these errors in the time window
+    const placeholders = errorIds.map(() => "?").join(",");
+    const rows = this.db
+      .prepare(
+        `SELECT error_id, timestamp FROM error_events
+         WHERE error_id IN (${placeholders}) AND timestamp >= ?
+         ORDER BY timestamp ASC`
+      )
+      .all(...errorIds, since) as { error_id: string; timestamp: string }[];
+
+    // Bucket them
+    const result: Record<string, number[]> = {};
+    for (const id of errorIds) {
+      result[id] = new Array(bucketCount).fill(0);
+    }
+
+    for (const row of rows) {
+      const elapsed = new Date(row.timestamp).getTime() - (now - hours * 60 * 60 * 1000);
+      const bucket = Math.min(Math.floor(elapsed / bucketMs), bucketCount - 1);
+      if (bucket >= 0 && result[row.error_id]) {
+        result[row.error_id][bucket]++;
+      }
+    }
+
+    return result;
+  }
+
   getErrorsOverTime(
     hours: number = 24,
     projectId?: string

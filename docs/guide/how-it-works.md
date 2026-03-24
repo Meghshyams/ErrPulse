@@ -5,36 +5,47 @@ This page explains ErrPulse's architecture, error fingerprinting, event batching
 ## Architecture
 
 ```
-┌──────────────────┐     ┌──────────────────┐
-│   Your Backend   │     │   Your Frontend  │
-│  (Express/Next)  │     │     (React)      │
-│                  │     │                  │
-│  @errpulse/node  │     │  @errpulse/react │
-└────────┬─────────┘     └────────┬─────────┘
-         │                        │
-         │  POST /api/events      │  POST /api/events
-         │  POST /api/events/req  │  POST /api/events/batch
-         │                        │
-         └────────┬───────────────┘
-                  │
-                  ▼
-       ┌─────────────────────┐
-       │   ErrPulse Server   │
-       │   (@errpulse/server)│
-       │                     │
-       │  ┌───────────────┐  │
-       │  │  REST API      │  │
-       │  ├───────────────┤  │
-       │  │  Engine        │  │ ← Fingerprinting, grouping,
-       │  │  (ingest)      │  │   explanation matching
-       │  ├───────────────┤  │
-       │  │  SQLite + WAL  │  │ ← ~/.errpulse/errpulse.db
-       │  ├───────────────┤  │
-       │  │  WebSocket     │  │ ← Real-time broadcast
-       │  ├───────────────┤  │
-       │  │  Dashboard     │  │ ← React SPA at /
-       │  └───────────────┘  │
-       └─────────────────────┘
+Your Backend (Express/Next)       Your Frontend (React)
++---------------------------+     +---------------------------+
+| @errpulse/node            |     | @errpulse/react           |
+|                           |     |                           |
+| - uncaught exceptions     |     | - runtime errors          |
+| - unhandled rejections    |     | - fetch / XHR failures    |
+| - console.error           |     | - React component crashes |
+| - memory warnings         |     | - resource load failures  |
++-------------+-------------+     +-------------+-------------+
+              |                                 |
+              |  <-- correlation ID header -->  |
+              |                                 |
+              +---- POST /api/events -----------+
+                       (batched, 100ms)
+                             |
+                             v
+              +-----------------------------+
+              |      ErrPulse Server        |
+              |      localhost:3800         |
+              |                             |
+              |  - REST API                 |
+              |  - Ingest engine            |
+              |    (fingerprint, group,     |
+              |     explain, store)         |
+              |  - SQLite + WAL             |
+              |    (~/.errpulse/errpulse.db)|
+              |  - WebSocket broadcast      |
+              +-------------+---------------+
+                            |
+                            v
+              +-----------------------------+
+              |    Dashboard (React SPA)    |
+              |                             |
+              |  - Overview + health score  |
+              |  - Errors + sparklines      |
+              |  - Requests + error linking |
+              |  - Light/dark theme         |
+              |  - Keyboard shortcuts       |
+              |  - Toast notifications      |
+              |  - Favicon error badge      |
+              +-----------------------------+
 ```
 
 ## Monorepo Structure

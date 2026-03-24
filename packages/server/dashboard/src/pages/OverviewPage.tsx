@@ -1,10 +1,24 @@
 import { useStats } from "../hooks/useStats";
 import { useErrors, type ErrorGroup } from "../hooks/useErrors";
 import { useWebSocket } from "../hooks/useWebSocket";
+import { useTheme } from "../context/ThemeContext";
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, AlertTriangle, Globe, TrendingDown, ArrowRight } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  Globe,
+  TrendingDown,
+  ArrowRight,
+  Zap,
+  Check,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { cn, timeAgo, severityColor, sourceColor } from "../lib/utils";
+import { EmptyState } from "../components/EmptyState";
+import { TimeRangeSelector } from "../components/TimeRangeSelector";
+import { patchJSON } from "../lib/api";
 
 function HealthDonut({ score }: { score: number }) {
   const r = 36;
@@ -15,7 +29,15 @@ function HealthDonut({ score }: { score: number }) {
   return (
     <div className="relative w-24 h-24">
       <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
-        <circle cx="40" cy="40" r={r} fill="none" stroke="#27272a" strokeWidth="5" />
+        <circle
+          cx="40"
+          cy="40"
+          r={r}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="5"
+          className="text-border"
+        />
         <circle
           cx="40"
           cy="40"
@@ -125,15 +147,89 @@ function ErrorFeedItem({ error, index }: { error: ErrorGroup; index: number }) {
   );
 }
 
+function NeedsAttentionItem({
+  error,
+  index,
+  onStatusChange,
+}: {
+  error: ErrorGroup;
+  index: number;
+  onStatusChange: (id: string, status: string) => void;
+}) {
+  return (
+    <div
+      className="animate-fade-up flex items-center gap-3 px-4 py-3 border-b border-border/30 last:border-0 group"
+      style={{ animationDelay: `${index * 40}ms` }}
+    >
+      <span
+        className={cn(
+          "px-1.5 py-0.5 rounded text-[10px] font-mono font-medium uppercase",
+          severityColor(error.severity)
+        )}
+      >
+        {error.severity.slice(0, 3)}
+      </span>
+
+      <Link to={`/errors/${error.id}`} className="flex-1 min-w-0 hover:underline">
+        <p className="text-[13px] font-medium truncate">{error.message}</p>
+      </Link>
+
+      <span
+        className={cn("text-[10px] font-mono px-1.5 py-0.5 rounded", sourceColor(error.source))}
+      >
+        {error.source}
+      </span>
+
+      <span className="text-sm font-mono font-medium tabular-nums w-14 text-right">
+        {error.count}x
+      </span>
+
+      {/* Quick actions */}
+      <div
+        className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={() => onStatusChange(error.id, "resolved")}
+          title="Resolve"
+          className="p-1 rounded hover:bg-emerald-400/15 text-muted-foreground/50 hover:text-emerald-400 transition-colors"
+        >
+          <Check className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => onStatusChange(error.id, "acknowledged")}
+          title="Acknowledge"
+          className="p-1 rounded hover:bg-amber-400/15 text-muted-foreground/50 hover:text-amber-400 transition-colors"
+        >
+          <Eye className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => onStatusChange(error.id, "ignored")}
+          title="Ignore"
+          className="p-1 rounded hover:bg-zinc-400/15 text-muted-foreground/50 hover:text-zinc-400 transition-colors"
+        >
+          <EyeOff className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function OverviewPage() {
-  const { stats, loading: statsLoading, reload: reloadStats } = useStats();
-  const {
-    errors,
-    loading: errorsLoading,
-    reload: reloadErrors,
-  } = useErrors({
+  const [timeRange, setTimeRange] = useState("24h");
+  const { stats, reload: reloadStats } = useStats(timeRange);
+  const { errors, reload: reloadErrors } = useErrors({
     pageSize: "10",
+    ...(timeRange !== "all" ? { timeRange } : {}),
   });
+
+  // Unresolved errors for "Needs Attention"
+  const { errors: unresolvedErrors, reload: reloadUnresolved } = useErrors({
+    status: "unresolved",
+    pageSize: "5",
+    ...(timeRange !== "all" ? { timeRange } : {}),
+  });
+
   const [feed, setFeed] = useState<ErrorGroup[]>([]);
 
   const handleMessage = useCallback(
@@ -141,6 +237,7 @@ export function OverviewPage() {
       if (msg.type === "new_error" || msg.type === "new_event") {
         reloadStats();
         reloadErrors();
+        reloadUnresolved();
         const errorGroup =
           msg.type === "new_error"
             ? (msg.payload as ErrorGroup)
@@ -149,11 +246,24 @@ export function OverviewPage() {
           setFeed((prev) => [errorGroup, ...prev.slice(0, 19)]);
         }
       }
+      if (msg.type === "status_change") {
+        reloadStats();
+        reloadUnresolved();
+      }
     },
-    [reloadStats, reloadErrors]
+    [reloadStats, reloadErrors, reloadUnresolved]
   );
 
   useWebSocket(handleMessage);
+
+  const handleStatusChange = useCallback(
+    async (errorId: string, status: string) => {
+      await patchJSON(`/api/errors/${errorId}`, { status });
+      reloadUnresolved();
+      reloadStats();
+    },
+    [reloadUnresolved, reloadStats]
+  );
 
   const displayErrors = feed.length > 0 ? feed : errors;
 
@@ -165,6 +275,7 @@ export function OverviewPage() {
           <h1 className="text-xl font-semibold tracking-tight">Overview</h1>
           <p className="text-[13px] text-muted-foreground mt-0.5">Real-time error monitoring</p>
         </div>
+        <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       </div>
 
       {/* Stats row */}
@@ -210,17 +321,50 @@ export function OverviewPage() {
         />
       </div>
 
+      {/* Needs Attention */}
+      {unresolvedErrors.length > 0 && (
+        <div className="bg-card/80 border border-destructive/20 rounded-lg overflow-hidden">
+          <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
+              <span className="text-[11px] text-destructive uppercase tracking-wider font-medium">
+                Needs Attention
+              </span>
+              <span className="text-[10px] font-mono text-destructive/60 bg-destructive/10 px-1.5 py-0.5 rounded">
+                {unresolvedErrors.length} unresolved
+              </span>
+            </div>
+            <Link
+              to="/errors?status=unresolved"
+              className="text-[11px] text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+            >
+              View all <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div>
+            {unresolvedErrors.map((error, i) => (
+              <NeedsAttentionItem
+                key={error.id}
+                error={error}
+                index={i}
+                onStatusChange={handleStatusChange}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-4">
         {/* Error timeline */}
         <div className="col-span-1 bg-card/80 border border-border/50 rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">
-              Errors over time (24h)
+              Errors over time
             </span>
           </div>
           <MiniBar data={stats?.errorsOverTime ?? []} />
           <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
-            <span>24h ago</span>
+            <span>{timeRange === "all" ? "oldest" : timeRange + " ago"}</span>
             <span>now</span>
           </div>
         </div>
@@ -244,9 +388,12 @@ export function OverviewPage() {
 
           <div className="max-h-[300px] overflow-y-auto">
             {displayErrors.length === 0 ? (
-              <div className="py-12 text-center text-sm text-muted-foreground">
-                No errors captured yet. Integrate a SDK to start monitoring.
-              </div>
+              <EmptyState
+                icon={<Zap className="w-5 h-5 text-muted-foreground/40" />}
+                title="Waiting for errors"
+                description="Errors will appear here in real-time once your SDK is connected."
+                installCommand="npm install @errpulse/react"
+              />
             ) : (
               displayErrors.map((error, i) => (
                 <ErrorFeedItem key={error.id + i} error={error} index={i} />
