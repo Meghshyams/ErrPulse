@@ -68,7 +68,7 @@ import { init } from "@errpulse/node";
 init({ serverUrl: "http://localhost:3800", projectId: "my-api" });
 
 const app = express();
-app.use(expressRequestHandler()); // Track all requests
+app.use(expressRequestHandler()); // Track all requests (headers, body, response)
 // ... your routes ...
 app.use(expressErrorHandler()); // Catch route errors
 ```
@@ -224,14 +224,14 @@ The dashboard runs at `http://localhost:3800` and provides:
 - **Overview**: Health score donut, error count, request count, error rate, "Needs Attention" section for unresolved errors, real-time error feed, errors-over-time chart
 - **Errors**: Filterable list by severity, source, status, and time range (1h/6h/24h/7d). Inline sparkline trends per error. Search by message. Inline quick actions (resolve/acknowledge/ignore) on hover — no need to click into detail view
 - **Error Detail**: Plain-English explanation, stack trace viewer with in-app frame highlighting, event timeline, status management
-- **Requests**: HTTP request log with method, URL, status code, duration, timing. Error-linked requests are flagged with a visual indicator
+- **Requests**: HTTP request log with method, URL, status code, duration, timing. Click any row to expand a detail panel showing request/response headers, request body, and response body. Error-linked requests are flagged with a visual indicator
 - **Project Selector**: Filter all views by project when monitoring multiple apps
 - **Light/Dark Mode**: Toggle between themes, persisted to localStorage
 - **Keyboard Shortcuts**: `j`/`k` navigate errors, `r` resolve, `a` acknowledge, `i` ignore, `/` search
 - **Favicon Badge**: Error count notification dot when the tab is not focused
 - **Toast Notifications**: Real-time popups when new errors arrive
 
-Built with React + Tailwind CSS + WebSocket for real-time updates.
+Fully responsive — works on desktop and mobile. Built with React + Tailwind CSS + WebSocket for real-time updates.
 
 ---
 
@@ -294,7 +294,7 @@ Your Backend (Express/Next)       Your Frontend (React)
               |                             |
               |  - Overview + health score  |
               |  - Errors + sparklines      |
-              |  - Requests + error linking |
+              |  - Requests + detail panel  |
               |  - Light/dark theme         |
               |  - Keyboard shortcuts       |
               |  - Toast notifications      |
@@ -343,6 +343,7 @@ All endpoints are served from the ErrPulse server (default `http://localhost:380
 | `GET`   | `/api/errors/:id`     | Error detail with event history |
 | `PATCH` | `/api/errors/:id`     | Update error status             |
 | `GET`   | `/api/requests`       | List HTTP requests              |
+| `GET`   | `/api/requests/:id`   | Request detail (headers, body)  |
 | `GET`   | `/api/stats`          | Dashboard overview stats        |
 | `GET`   | `/api/projects`       | List registered projects        |
 | `GET`   | `/api/health`         | Health check                    |
