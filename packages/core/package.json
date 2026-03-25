@@ -1,6 +1,6 @@
 {
   "name": "@errpulse/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Shared types, fingerprinting, and error explanations for ErrPulse",
   "license": "MIT",
   "author": "Meghshyam Sonar",
