@@ -40,7 +40,7 @@ Your Backend (Express/Next)       Your Frontend (React)
               |                             |
               |  - Overview + health score  |
               |  - Errors + sparklines      |
-              |  - Requests + error linking |
+              |  - Requests + detail panel  |
               |  - Light/dark theme         |
               |  - Keyboard shortcuts       |
               |  - Toast notifications      |
@@ -125,12 +125,12 @@ ErrPulse uses **SQLite** with **WAL (Write-Ahead Logging)** mode for the databas
 
 ### Tables
 
-| Table          | Purpose                                                                  |
-| -------------- | ------------------------------------------------------------------------ |
-| `projects`     | Registered projects with id, name, created_at                            |
-| `errors`       | Error groups with fingerprint, type, message, status, count, explanation |
-| `error_events` | Individual error events with full stack trace and context                |
-| `requests`     | HTTP request log with method, URL, status, duration, correlation ID      |
+| Table          | Purpose                                                                                             |
+| -------------- | --------------------------------------------------------------------------------------------------- |
+| `projects`     | Registered projects with id, name, created_at                                                       |
+| `errors`       | Error groups with fingerprint, type, message, status, count, explanation                            |
+| `error_events` | Individual error events with full stack trace and context                                           |
+| `requests`     | HTTP request log with method, URL, status, duration, headers, request/response body, correlation ID |
 
 ## WebSocket Real-Time Feed
 

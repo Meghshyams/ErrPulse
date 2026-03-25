@@ -72,6 +72,10 @@ Log an HTTP request.
   "timestamp": "2025-01-15T10:30:00.000Z",
   "correlationId": "a1b2c3d4",
   "errorEventId": "evt123",
+  "headers": { "content-type": "application/json", "user-agent": "..." },
+  "responseHeaders": { "content-type": "application/json", "x-request-id": "..." },
+  "requestBody": "{\"items\":[{\"id\":1}]}",
+  "responseBody": "{\"error\":\"Internal Server Error\"}",
   "source": "backend",
   "projectId": "api-service"
 }
@@ -242,6 +246,40 @@ List tracked HTTP requests.
   "pageSize": 50
 }
 ```
+
+### `GET /api/requests/:id`
+
+Get full details for a single request, including headers and body.
+
+**Response:**
+
+```json
+{
+  "id": "req_abc123",
+  "method": "POST",
+  "url": "/api/checkout",
+  "statusCode": 500,
+  "duration": 234,
+  "timestamp": "2025-01-15T10:30:00.000Z",
+  "correlationId": "a1b2c3d4",
+  "errorEventId": "evt_123",
+  "headers": {
+    "content-type": "application/json",
+    "user-agent": "Mozilla/5.0...",
+    "authorization": "[Redacted]"
+  },
+  "responseHeaders": {
+    "content-type": "application/json",
+    "x-request-id": "abc-123"
+  },
+  "requestBody": { "items": [{ "id": 1, "qty": 2 }] },
+  "responseBody": { "error": "Internal Server Error" }
+}
+```
+
+::: tip
+Sensitive headers (authorization, cookie, etc.) are automatically redacted. Request and response bodies are capped at 16 KB to prevent performance issues.
+:::
 
 ## Stats & Health
 
