@@ -176,3 +176,8 @@ body {
 .toast-exit {
   animation: toast-out 0.2s ease-in forwards;
 }
+
+/* Safe area padding for mobile bottom nav (iOS notch devices) */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

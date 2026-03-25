@@ -33,7 +33,7 @@ function FilterChip({
     <button
       onClick={onClick}
       className={cn(
-        "px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150 capitalize",
+        "px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150 capitalize cursor-pointer",
         active
           ? "bg-primary/15 text-primary border border-primary/30"
           : "bg-muted/50 text-muted-foreground border border-transparent hover:text-foreground hover:bg-muted"
@@ -57,7 +57,7 @@ function QuickActions({
         <button
           onClick={() => onStatusChange(error.id, "resolved")}
           title="Resolve"
-          className="p-1 rounded hover:bg-emerald-400/15 text-muted-foreground/50 hover:text-emerald-400 transition-colors"
+          className="p-1 rounded hover:bg-emerald-400/15 text-muted-foreground/50 hover:text-emerald-400 transition-colors cursor-pointer"
         >
           <Check className="w-3.5 h-3.5" />
         </button>
@@ -66,7 +66,7 @@ function QuickActions({
         <button
           onClick={() => onStatusChange(error.id, "acknowledged")}
           title="Acknowledge"
-          className="p-1 rounded hover:bg-amber-400/15 text-muted-foreground/50 hover:text-amber-400 transition-colors"
+          className="p-1 rounded hover:bg-amber-400/15 text-muted-foreground/50 hover:text-amber-400 transition-colors cursor-pointer"
         >
           <Eye className="w-3.5 h-3.5" />
         </button>
@@ -75,7 +75,7 @@ function QuickActions({
         <button
           onClick={() => onStatusChange(error.id, "ignored")}
           title="Ignore"
-          className="p-1 rounded hover:bg-zinc-400/15 text-muted-foreground/50 hover:text-zinc-400 transition-colors"
+          className="p-1 rounded hover:bg-zinc-400/15 text-muted-foreground/50 hover:text-zinc-400 transition-colors cursor-pointer"
         >
           <EyeOff className="w-3.5 h-3.5" />
         </button>
@@ -102,15 +102,21 @@ function ErrorRow({
       to={`/errors/${error.id}`}
       data-error-index={index}
       className={cn(
-        "animate-fade-up group grid grid-cols-[auto_1fr_64px_auto_auto_auto_auto] items-center gap-3 px-4 py-3 transition-colors border-b border-border/30 last:border-0",
+        "animate-fade-up group",
+        // Desktop: grid layout
+        "md:grid md:grid-cols-[auto_1fr_64px_auto_auto_auto_auto] md:items-center md:gap-3",
+        // Mobile: flex column card layout
+        "flex flex-col gap-2",
+        "px-4 py-3 transition-colors border-b border-border/30 last:border-0",
         selected ? "bg-primary/5 border-l-2 border-l-primary" : "hover:bg-muted/30"
       )}
       style={{ animationDelay: `${index * 30}ms` }}
     >
-      {/* Severity */}
+      {/* Mobile: top row with severity + message */}
+      {/* Desktop: severity in its own column */}
       <span
         className={cn(
-          "px-1.5 py-0.5 rounded text-[10px] font-mono font-medium uppercase min-w-[32px] text-center",
+          "px-1.5 py-0.5 rounded text-[10px] font-mono font-medium uppercase min-w-[32px] text-center w-fit md:w-auto",
           severityColor(error.severity)
         )}
       >
@@ -123,33 +129,42 @@ function ErrorRow({
         <p className="text-[11px] text-muted-foreground font-mono truncate mt-0.5">{error.type}</p>
       </div>
 
-      {/* Sparkline */}
-      <div className="flex items-center justify-center">
+      {/* Sparkline - hidden on mobile */}
+      <div className="hidden md:flex items-center justify-center">
         {trend ? <Sparkline data={trend} width={64} height={20} /> : <div className="w-16" />}
       </div>
 
-      {/* Source */}
-      <span
-        className={cn("text-[10px] font-mono px-1.5 py-0.5 rounded", sourceColor(error.source))}
-      >
-        {error.source}
-      </span>
+      {/* Source + Status + Count: inline on mobile, separate columns on desktop */}
+      <div className="flex items-center gap-2 md:contents">
+        <span
+          className={cn("text-[10px] font-mono px-1.5 py-0.5 rounded", sourceColor(error.source))}
+        >
+          {error.source}
+        </span>
 
-      {/* Status */}
-      <span
-        className={cn("text-[11px] font-medium capitalize min-w-[80px]", statusColor(error.status))}
-      >
-        {error.status}
-      </span>
+        <span
+          className={cn(
+            "text-[11px] font-medium capitalize md:min-w-[80px]",
+            statusColor(error.status)
+          )}
+        >
+          {error.status}
+        </span>
 
-      {/* Count + time */}
-      <div className="text-right min-w-[80px]">
-        <p className="text-[13px] font-mono font-medium tabular-nums">{error.count}x</p>
-        <p className="text-[11px] text-muted-foreground">{timeAgo(error.lastSeen)}</p>
+        <div className="ml-auto md:ml-0 md:text-right md:min-w-[80px]">
+          <p className="text-[13px] font-mono font-medium tabular-nums">{error.count}x</p>
+          <p className="text-[11px] text-muted-foreground hidden md:block">
+            {timeAgo(error.lastSeen)}
+          </p>
+        </div>
+
+        <span className="text-[11px] text-muted-foreground md:hidden">
+          {timeAgo(error.lastSeen)}
+        </span>
       </div>
 
-      {/* Quick actions (visible on hover) / chevron */}
-      <div className="w-[72px] flex justify-end">
+      {/* Quick actions (visible on hover) / chevron - hidden on mobile */}
+      <div className="hidden md:flex w-[72px] justify-end">
         <div className="hidden group-hover:flex">
           <QuickActions error={error} onStatusChange={onStatusChange} />
         </div>
@@ -275,12 +290,12 @@ export function ErrorsPage() {
   }, [status, source, severity, search, timeRange]);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-5">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <AlertTriangle className="w-5 h-5 text-destructive" />
-          <h1 className="text-xl font-semibold tracking-tight">Errors</h1>
+          <h1 className="text-lg md:text-xl font-semibold tracking-tight">Errors</h1>
           <span className="text-[11px] font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded">
             {total}
           </span>
@@ -336,7 +351,7 @@ export function ErrorsPage() {
       </div>
 
       {/* Keyboard hint */}
-      <div className="flex items-center gap-3 text-[10px] text-muted-foreground/50">
+      <div className="hidden md:flex items-center gap-3 text-[10px] text-muted-foreground/50">
         <span>
           <kbd className="px-1 py-0.5 rounded border border-border/50 font-mono">j</kbd>{" "}
           <kbd className="px-1 py-0.5 rounded border border-border/50 font-mono">k</kbd> navigate
@@ -357,8 +372,8 @@ export function ErrorsPage() {
 
       {/* Error list */}
       <div className="bg-card/80 border border-border/50 rounded-lg overflow-hidden">
-        {/* Column headers */}
-        <div className="grid grid-cols-[auto_1fr_64px_auto_auto_auto_auto] items-center gap-3 px-4 py-2 border-b border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+        {/* Column headers - hidden on mobile */}
+        <div className="hidden md:grid grid-cols-[auto_1fr_64px_auto_auto_auto_auto] items-center gap-3 px-4 py-2 border-b border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
           <span className="min-w-[32px]">Sev</span>
           <span>Error</span>
           <span className="text-center">Trend</span>

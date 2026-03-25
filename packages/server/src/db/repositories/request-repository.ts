@@ -12,8 +12,18 @@ export interface RequestRow {
   correlation_id: string | null;
   error_event_id: string | null;
   headers: string | null;
+  response_headers: string | null;
+  request_body: string | null;
+  response_body: string | null;
   source: string;
   project_id: string | null;
+}
+
+export interface RequestDetailEntry extends RequestLogEntry {
+  headers?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  requestBody?: unknown;
+  responseBody?: unknown;
 }
 
 function rowToRequest(row: RequestRow): RequestLogEntry {
@@ -29,6 +39,24 @@ function rowToRequest(row: RequestRow): RequestLogEntry {
   };
 }
 
+function rowToDetail(row: RequestRow): RequestDetailEntry {
+  return {
+    ...rowToRequest(row),
+    headers: row.headers ? safeJsonParse(row.headers) : undefined,
+    responseHeaders: row.response_headers ? safeJsonParse(row.response_headers) : undefined,
+    requestBody: row.request_body ? safeJsonParse(row.request_body) : undefined,
+    responseBody: row.response_body ? safeJsonParse(row.response_body) : undefined,
+  };
+}
+
+function safeJsonParse(str: string): Record<string, string> | undefined {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return undefined;
+  }
+}
+
 export class RequestRepository {
   constructor(private db: Database.Database) {}
 
@@ -41,6 +69,9 @@ export class RequestRepository {
     correlationId?: string;
     errorEventId?: string;
     headers?: Record<string, string>;
+    responseHeaders?: Record<string, string>;
+    requestBody?: string;
+    responseBody?: string;
     source?: string;
     projectId?: string;
   }): string {
@@ -48,8 +79,8 @@ export class RequestRepository {
     this.db
       .prepare(
         `INSERT INTO requests (id, method, url, status_code, duration, timestamp,
-         correlation_id, error_event_id, headers, source, project_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         correlation_id, error_event_id, headers, response_headers, request_body, response_body, source, project_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         id,
@@ -61,10 +92,20 @@ export class RequestRepository {
         entry.correlationId ?? null,
         entry.errorEventId ?? null,
         entry.headers ? JSON.stringify(entry.headers) : null,
+        entry.responseHeaders ? JSON.stringify(entry.responseHeaders) : null,
+        entry.requestBody ?? null,
+        entry.responseBody ?? null,
         entry.source ?? "backend",
         entry.projectId ?? null
       );
     return id;
+  }
+
+  findById(id: string): RequestDetailEntry | null {
+    const row = this.db.prepare("SELECT * FROM requests WHERE id = ?").get(id) as
+      | RequestRow
+      | undefined;
+    return row ? rowToDetail(row) : null;
   }
 
   findAll(options: { page?: number; pageSize?: number; projectId?: string }): {

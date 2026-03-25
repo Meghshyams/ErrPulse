@@ -149,9 +149,16 @@ app.use(expressErrorHandler());
 The request handler tracks:
 
 - HTTP method and URL
-- Status code
-- Response duration
+- Status code and response duration
 - Correlation ID (from `X-ErrPulse-Correlation-ID` header, or auto-generated)
+- **Request headers** (sanitized — sensitive headers like `authorization` and `cookie` are redacted)
+- **Response headers** (captured via `res.getHeaders()`)
+- **Request body** (from `req.body`, sanitized for sensitive fields like `password`, `token`, etc.)
+- **Response body** (intercepted from `res.write()`/`res.end()`)
+
+::: tip Performance
+Request and response bodies are capped at **16 KB** each. Anything larger is truncated to prevent memory or network overhead. Header sanitization and body capture happen asynchronously after the response finishes, so they don't add latency to your request handling.
+:::
 
 ### `expressErrorHandler()`
 

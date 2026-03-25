@@ -153,6 +153,9 @@ export function createEventsRouter(
         correlationId: body.correlationId,
         errorEventId: body.errorEventId,
         headers: body.headers,
+        responseHeaders: body.responseHeaders,
+        requestBody: body.requestBody,
+        responseBody: body.responseBody,
         source: body.source || "backend",
         projectId: body.projectId,
       });

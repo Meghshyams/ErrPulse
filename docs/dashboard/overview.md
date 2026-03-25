@@ -105,6 +105,31 @@ An HTTP request log showing all tracked requests:
 
 Requests that resulted in errors are highlighted with a visual indicator and linked to the errors page.
 
+### Request Detail Panel
+
+Click on any request row to expand an inline detail panel with four tabs:
+
+- **Headers** — request headers and response headers displayed in a table. Sensitive headers (authorization, cookie, etc.) are automatically redacted.
+- **Payload** — the request body, auto-formatted as JSON when possible.
+- **Response** — the response body returned by the server, auto-formatted as JSON.
+- **General** — method, status code, duration, timestamp, full URL, and correlation ID.
+
+::: tip
+Request and response bodies are capped at 16 KB to avoid performance overhead. Bodies larger than 16 KB are truncated with a `...[truncated]` indicator.
+:::
+
+The detail panel fetches data lazily — it only loads the full request details (headers, body) when you expand a row, keeping the initial page load fast.
+
+## Responsive Design
+
+The dashboard is fully responsive and works on mobile devices:
+
+- On small screens, the sidebar collapses into a **bottom navigation bar** with icons and labels
+- Stat cards, grids, and error rows stack vertically on mobile
+- Table column headers are hidden on mobile, with data presented in a card-style layout
+- The theme toggle and live connection indicator move to the top header bar on mobile
+- Safe-area padding is applied for iOS devices with notches
+
 ## Project Selector
 
 When you have multiple projects sending errors to ErrPulse, the dashboard shows a project selector:

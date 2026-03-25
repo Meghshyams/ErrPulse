@@ -99,6 +99,10 @@ export async function sendRequest(entry: {
   timestamp: string;
   correlationId?: string;
   errorEventId?: string;
+  headers?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  requestBody?: string;
+  responseBody?: string;
   source?: string;
   projectId?: string;
 }): Promise<void> {
