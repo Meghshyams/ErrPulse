@@ -72,6 +72,9 @@ CREATE TABLE IF NOT EXISTS requests (
   correlation_id TEXT,
   error_event_id TEXT,
   headers TEXT,
+  response_headers TEXT,
+  request_body TEXT,
+  response_body TEXT,
   source TEXT NOT NULL DEFAULT 'backend',
   project_id TEXT
 );
@@ -133,6 +136,17 @@ function runMigrations(db: Database.Database): void {
   if (!hasColumn(db, "requests", "project_id")) {
     db.exec("ALTER TABLE requests ADD COLUMN project_id TEXT");
     db.exec("CREATE INDEX IF NOT EXISTS idx_requests_project_id ON requests(project_id)");
+  }
+
+  // Migration: Add response_headers and request_body columns to requests
+  if (!hasColumn(db, "requests", "response_headers")) {
+    db.exec("ALTER TABLE requests ADD COLUMN response_headers TEXT");
+  }
+  if (!hasColumn(db, "requests", "request_body")) {
+    db.exec("ALTER TABLE requests ADD COLUMN request_body TEXT");
+  }
+  if (!hasColumn(db, "requests", "response_body")) {
+    db.exec("ALTER TABLE requests ADD COLUMN response_body TEXT");
   }
 }
 

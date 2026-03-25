@@ -170,7 +170,7 @@ function StatusButton({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium border transition-all duration-150",
+        "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium border transition-colors duration-150 cursor-pointer",
         active
           ? "bg-primary/10 text-primary border-primary/30"
           : cn("bg-transparent text-muted-foreground border-border/50", colors[variant])
@@ -212,7 +212,7 @@ export function ErrorDetailPage() {
   const explanation = parseExplanation(error.explanation);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-5">
+    <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-4 md:space-y-5">
       {/* Back link */}
       <Link
         to="/errors"
@@ -256,17 +256,17 @@ export function ErrorDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-[12px] text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-[12px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
             First: {new Date(error.firstSeen).toLocaleString()}
           </span>
           <span>Last: {timeAgo(error.lastSeen)}</span>
-          <span className="font-mono text-[11px]">fp: {error.fingerprint}</span>
+          <span className="font-mono text-[11px] truncate">fp: {error.fingerprint}</span>
         </div>
 
         {/* Status actions */}
-        <div className="flex items-center gap-2 pt-1">
+        <div className="flex flex-wrap items-center gap-2 pt-1">
           <StatusButton
             label="Resolve"
             icon={Check}

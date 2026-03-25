@@ -26,5 +26,20 @@ export function createRequestsRouter(requestRepo: RequestRepository): Router {
     }
   });
 
+  // GET /api/requests/:id — get request detail with headers and body
+  router.get("/:id", (req, res) => {
+    try {
+      const request = requestRepo.findById(req.params.id);
+      if (!request) {
+        res.status(404).json({ error: "Request not found" });
+        return;
+      }
+      res.json(request);
+    } catch (err) {
+      console.error("[ErrPulse] Failed to fetch request detail:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   return router;
 }

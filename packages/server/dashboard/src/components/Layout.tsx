@@ -78,9 +78,9 @@ export function Layout() {
   const isDark = theme === "dark";
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Icon Rail */}
-      <aside className="w-[52px] flex-shrink-0 bg-sidebar flex flex-col items-center border-r border-border/40">
+    <div className="flex flex-col md:flex-row h-screen overflow-hidden">
+      {/* Icon Rail - hidden on mobile, shown on md+ */}
+      <aside className="hidden md:flex w-[52px] flex-shrink-0 bg-sidebar flex-col items-center border-r border-border/40">
         {/* Brand mark */}
         <div className="h-[52px] flex items-center justify-center">
           <div className="w-8 h-8 rounded-[10px] bg-primary/10 border border-primary/25 flex items-center justify-center">
@@ -243,27 +243,92 @@ export function Layout() {
       </aside>
 
       {/* Main area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Slim top bar */}
-        <header className="h-11 flex items-center px-5 border-b border-border/40 bg-sidebar/50 flex-shrink-0">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Top bar */}
+        <header className="h-11 flex items-center px-3 md:px-5 border-b border-border/40 bg-sidebar/50 flex-shrink-0">
+          {/* Mobile brand mark */}
+          <div className="md:hidden w-7 h-7 rounded-[8px] bg-primary/10 border border-primary/25 flex items-center justify-center mr-2.5">
+            <Activity className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
+          </div>
           <span className="text-[13px] font-medium text-foreground/80">{pageTitle}</span>
           {selectedProject && (
-            <span className="ml-3 text-[11px] font-mono px-2 py-0.5 rounded-full bg-hover text-muted-foreground border border-border/40">
+            <span className="ml-3 text-[11px] font-mono px-2 py-0.5 rounded-full bg-hover text-muted-foreground border border-border/40 hidden sm:inline">
               {selectedProject.name}
             </span>
           )}
-          {liveCount > 0 && (
-            <span className="ml-auto text-[10px] font-mono text-primary/70 animate-fade-up">
-              {liveCount} incoming
-            </span>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {liveCount > 0 && (
+              <span className="text-[10px] font-mono text-primary/70 animate-fade-up">
+                {liveCount} incoming
+              </span>
+            )}
+            {/* Mobile theme toggle */}
+            <button
+              onClick={toggleTheme}
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-hover transition-all duration-150"
+            >
+              {isDark ? (
+                <Sun className="w-4 h-4" strokeWidth={1.8} />
+              ) : (
+                <Moon className="w-4 h-4" strokeWidth={1.8} />
+              )}
+            </button>
+            {/* Mobile live indicator */}
+            <div className="md:hidden relative" title={connected ? "Connected" : "Disconnected"}>
+              <div
+                className={cn(
+                  "w-2 h-2 rounded-full",
+                  connected ? "bg-success live-dot text-success" : "bg-destructive"
+                )}
+              />
+            </div>
+          </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
           <Outlet />
         </main>
       </div>
+
+      {/* Mobile bottom navigation bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-sidebar border-t border-border/40 flex items-center justify-around h-14 safe-area-pb">
+        {NAV_ITEMS.map(({ to, icon: Icon, label, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              cn(
+                "flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-all duration-150 min-w-[60px]",
+                isActive ? "text-primary" : "text-muted-foreground/60 active:text-foreground"
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute top-0 w-8 h-[3px] rounded-b-full bg-primary" />
+                )}
+                <Icon className="w-5 h-5" strokeWidth={isActive ? 2.2 : 1.8} />
+                <span className="text-[10px] font-medium">{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+
+        {/* Docs link in mobile nav */}
+        <a
+          href="https://meghshyams.github.io/ErrPulse/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 text-muted-foreground/60 active:text-foreground min-w-[60px]"
+        >
+          <BookOpen className="w-5 h-5" strokeWidth={1.8} />
+          <span className="text-[10px] font-medium">Docs</span>
+        </a>
+      </nav>
     </div>
   );
 }

@@ -192,21 +192,21 @@ function NeedsAttentionItem({
         <button
           onClick={() => onStatusChange(error.id, "resolved")}
           title="Resolve"
-          className="p-1 rounded hover:bg-emerald-400/15 text-muted-foreground/50 hover:text-emerald-400 transition-colors"
+          className="p-1 rounded hover:bg-emerald-400/15 text-muted-foreground/50 hover:text-emerald-400 transition-colors cursor-pointer"
         >
           <Check className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={() => onStatusChange(error.id, "acknowledged")}
           title="Acknowledge"
-          className="p-1 rounded hover:bg-amber-400/15 text-muted-foreground/50 hover:text-amber-400 transition-colors"
+          className="p-1 rounded hover:bg-amber-400/15 text-muted-foreground/50 hover:text-amber-400 transition-colors cursor-pointer"
         >
           <Eye className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={() => onStatusChange(error.id, "ignored")}
           title="Ignore"
-          className="p-1 rounded hover:bg-zinc-400/15 text-muted-foreground/50 hover:text-zinc-400 transition-colors"
+          className="p-1 rounded hover:bg-zinc-400/15 text-muted-foreground/50 hover:text-zinc-400 transition-colors cursor-pointer"
         >
           <EyeOff className="w-3.5 h-3.5" />
         </button>
@@ -224,7 +224,7 @@ export function OverviewPage() {
   });
 
   // Unresolved errors for "Needs Attention"
-  const { errors: unresolvedErrors, reload: reloadUnresolved } = useErrors({
+  const { errors: unresolvedErrors, silentReload: silentReloadUnresolved } = useErrors({
     status: "unresolved",
     pageSize: "5",
     ...(timeRange !== "all" ? { timeRange } : {}),
@@ -237,7 +237,7 @@ export function OverviewPage() {
       if (msg.type === "new_error" || msg.type === "new_event") {
         reloadStats();
         reloadErrors();
-        reloadUnresolved();
+        silentReloadUnresolved();
         const errorGroup =
           msg.type === "new_error"
             ? (msg.payload as ErrorGroup)
@@ -248,10 +248,10 @@ export function OverviewPage() {
       }
       if (msg.type === "status_change") {
         reloadStats();
-        reloadUnresolved();
+        silentReloadUnresolved();
       }
     },
-    [reloadStats, reloadErrors, reloadUnresolved]
+    [reloadStats, reloadErrors, silentReloadUnresolved]
   );
 
   useWebSocket(handleMessage);
@@ -259,27 +259,29 @@ export function OverviewPage() {
   const handleStatusChange = useCallback(
     async (errorId: string, status: string) => {
       await patchJSON(`/api/errors/${errorId}`, { status });
-      reloadUnresolved();
+      silentReloadUnresolved();
       reloadStats();
     },
-    [reloadUnresolved, reloadStats]
+    [silentReloadUnresolved, reloadStats]
   );
 
   const displayErrors = feed.length > 0 ? feed : errors;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Overview</h1>
-          <p className="text-[13px] text-muted-foreground mt-0.5">Real-time error monitoring</p>
+          <h1 className="text-lg md:text-xl font-semibold tracking-tight">Overview</h1>
+          <p className="text-[12px] md:text-[13px] text-muted-foreground mt-0.5">
+            Real-time error monitoring
+          </p>
         </div>
         <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <div className="bg-card/80 border border-border/50 rounded-lg p-4 flex items-center gap-4">
           <HealthDonut score={stats?.healthScore ?? 100} />
           <div className="space-y-1">
@@ -354,7 +356,7 @@ export function OverviewPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
         {/* Error timeline */}
         <div className="col-span-1 bg-card/80 border border-border/50 rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
@@ -370,7 +372,7 @@ export function OverviewPage() {
         </div>
 
         {/* Live error feed */}
-        <div className="col-span-2 bg-card/80 border border-border/50 rounded-lg overflow-hidden">
+        <div className="col-span-1 lg:col-span-2 bg-card/80 border border-border/50 rounded-lg overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
             <div className="flex items-center gap-2">
               <Activity className="w-3.5 h-3.5 text-primary" />
