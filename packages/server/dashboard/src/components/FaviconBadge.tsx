@@ -112,9 +112,9 @@ export function FaviconBadge() {
     }
   }, [errorCount]);
 
-  // Listen for new errors
+  // Listen for new errors (both first occurrence and subsequent events)
   const handleMessage = useCallback((msg: { type: string }) => {
-    if (msg.type === "new_error" && isHiddenRef.current) {
+    if ((msg.type === "new_error" || msg.type === "new_event") && isHiddenRef.current) {
       setErrorCount((c) => c + 1);
     }
   }, []);

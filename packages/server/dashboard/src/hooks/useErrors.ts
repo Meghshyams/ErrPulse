@@ -48,9 +48,24 @@ interface ErrorListResult {
   total: number;
 }
 
+export interface LinkedRequest {
+  id: string;
+  method: string;
+  url: string;
+  statusCode: number;
+  duration: number;
+  timestamp: string;
+  correlationId?: string;
+  headers?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  requestBody?: unknown;
+  responseBody?: unknown;
+}
+
 interface ErrorDetailResult {
   error: ErrorGroup;
   events: ErrorEvent[];
+  linkedRequest?: LinkedRequest | null;
 }
 
 export function useErrors(filters?: Record<string, string>) {

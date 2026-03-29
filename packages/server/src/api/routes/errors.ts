@@ -1,9 +1,16 @@
 import { Router } from "express";
 import { ErrorRepository } from "../../db/repositories/error-repository.js";
 import { EventRepository } from "../../db/repositories/event-repository.js";
+import { RequestRepository } from "../../db/repositories/request-repository.js";
 import { broadcast } from "../../ws/broadcaster.js";
 
-export function createErrorsRouter(errorRepo: ErrorRepository, eventRepo: EventRepository): Router {
+const HTTP_ERROR_TYPES = new Set(["http_error", "network_error"]);
+
+export function createErrorsRouter(
+  errorRepo: ErrorRepository,
+  eventRepo: EventRepository,
+  requestRepo: RequestRepository
+): Router {
   const router = Router();
 
   // GET /api/errors — list error groups
@@ -64,7 +71,23 @@ export function createErrorsRouter(errorRepo: ErrorRepository, eventRepo: EventR
 
       const events = eventRepo.findByErrorId(req.params.id);
 
-      res.json({ error, events });
+      // For HTTP/network errors, attach the linked request detail (response headers/body)
+      // so the dashboard can show the API response inline without navigating to Requests.
+      let linkedRequest = null;
+      if (HTTP_ERROR_TYPES.has(error.type)) {
+        // Try the most recent event's correlationId to find the linked request
+        for (const event of events) {
+          if (event.correlationId) {
+            const found = requestRepo.findByCorrelationId(event.correlationId);
+            if (found) {
+              linkedRequest = found;
+              break;
+            }
+          }
+        }
+      }
+
+      res.json({ error, events, linkedRequest });
     } catch (err) {
       console.error("[ErrPulse] Failed to fetch error detail:", err);
       res.status(500).json({ error: "Internal server error" });

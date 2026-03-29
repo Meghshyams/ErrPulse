@@ -24,8 +24,8 @@ export function createStatsRouter(
       const timeRange = req.query.timeRange as string | undefined;
       const hours = timeRange ? (TIME_RANGE_HOURS[timeRange] ?? 24) : 24;
 
-      const totalRequests = requestRepo.getTotalCount(projectId);
-      const errorRequests = requestRepo.getErrorCount(projectId);
+      const totalRequests = requestRepo.getTotalCount(projectId, hours);
+      const errorRequests = requestRepo.getErrorCount(projectId, hours);
       const healthScore =
         totalRequests > 0
           ? Math.round(((totalRequests - errorRequests) / totalRequests) * 100)

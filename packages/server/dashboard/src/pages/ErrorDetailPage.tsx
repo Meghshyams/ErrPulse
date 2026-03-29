@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useErrorDetail, type ErrorEvent } from "../hooks/useErrors";
+import { useErrorDetail, type ErrorEvent, type LinkedRequest } from "../hooks/useErrors";
 import {
   ArrowLeft,
   Check,
@@ -10,6 +11,8 @@ import {
   Code2,
   Clock,
   AlertTriangle,
+  FileText,
+  ArrowDownUp,
 } from "lucide-react";
 import { cn, timeAgo, severityColor, sourceColor, statusColor } from "../lib/utils";
 
@@ -146,6 +149,113 @@ function EventTimeline({ events }: { events: ErrorEvent[] }) {
   );
 }
 
+function formatBody(body: unknown): string {
+  if (body === null || body === undefined) return "";
+  if (typeof body === "string") {
+    try {
+      return JSON.stringify(JSON.parse(body), null, 2);
+    } catch {
+      return body;
+    }
+  }
+  return JSON.stringify(body, null, 2);
+}
+
+function ApiResponseSection({ linkedRequest }: { linkedRequest: LinkedRequest }) {
+  const [activeTab, setActiveTab] = useState<"response" | "request" | "headers">("response");
+
+  const hasResponseBody =
+    linkedRequest.responseBody !== null && linkedRequest.responseBody !== undefined;
+  const hasRequestBody =
+    linkedRequest.requestBody !== null && linkedRequest.requestBody !== undefined;
+  const hasHeaders =
+    linkedRequest.responseHeaders && Object.keys(linkedRequest.responseHeaders).length > 0;
+
+  return (
+    <div className="bg-card/80 border border-border/50 rounded-lg overflow-hidden">
+      <div className="px-4 py-3 border-b border-border/50 flex items-center gap-2">
+        <ArrowDownUp className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">
+          API Response
+        </span>
+        <span
+          className={cn(
+            "px-1.5 py-0.5 rounded text-[10px] font-mono",
+            linkedRequest.statusCode >= 500
+              ? "bg-red-400/10 text-red-400"
+              : linkedRequest.statusCode >= 400
+                ? "bg-amber-400/10 text-amber-400"
+                : "bg-emerald-400/10 text-emerald-400"
+          )}
+        >
+          {linkedRequest.statusCode}
+        </span>
+        {linkedRequest.duration > 0 && (
+          <span className="text-[11px] font-mono text-muted-foreground/60">
+            {linkedRequest.duration}ms
+          </span>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-border/30">
+        {[
+          { key: "response" as const, label: "Response Body", show: hasResponseBody },
+          { key: "request" as const, label: "Request Body", show: hasRequestBody },
+          { key: "headers" as const, label: "Headers", show: hasHeaders },
+        ]
+          .filter((t) => t.show)
+          .map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={cn(
+                "px-4 py-2 text-[11px] font-medium transition-colors cursor-pointer",
+                activeTab === tab.key
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+      </div>
+
+      {/* Tab content */}
+      <div className="p-4">
+        {activeTab === "response" && hasResponseBody && (
+          <pre className="text-[12px] font-mono text-muted-foreground whitespace-pre-wrap leading-relaxed bg-muted/30 rounded-lg p-4 overflow-x-auto max-h-80 overflow-y-auto">
+            {formatBody(linkedRequest.responseBody)}
+          </pre>
+        )}
+        {activeTab === "request" && hasRequestBody && (
+          <pre className="text-[12px] font-mono text-muted-foreground whitespace-pre-wrap leading-relaxed bg-muted/30 rounded-lg p-4 overflow-x-auto max-h-80 overflow-y-auto">
+            {formatBody(linkedRequest.requestBody)}
+          </pre>
+        )}
+        {activeTab === "headers" && linkedRequest.responseHeaders && (
+          <div className="space-y-0 rounded-lg overflow-hidden border border-border/30">
+            {Object.entries(linkedRequest.responseHeaders).map(([key, value]) => (
+              <div
+                key={key}
+                className="flex gap-3 px-3 py-1.5 border-b border-border/20 last:border-0 text-[12px] font-mono"
+              >
+                <span className="text-primary/80 font-medium min-w-[140px] flex-shrink-0">
+                  {key}
+                </span>
+                <span className="text-muted-foreground break-all">{value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {!hasResponseBody && !hasRequestBody && !hasHeaders && (
+          <p className="text-[12px] text-muted-foreground/60">No response data captured.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function StatusButton({
   label,
   icon: Icon,
@@ -208,7 +318,7 @@ export function ErrorDetailPage() {
     );
   }
 
-  const { error, events } = data;
+  const { error, events, linkedRequest } = data;
   const explanation = parseExplanation(error.explanation);
 
   return (
@@ -302,6 +412,9 @@ export function ErrorDetailPage() {
 
       {/* Explanation */}
       {explanation && <ExplanationCard explanation={explanation} />}
+
+      {/* API Response — only for HTTP/network errors */}
+      {linkedRequest && <ApiResponseSection linkedRequest={linkedRequest} />}
 
       {/* Stack Trace */}
       {events.length > 0 && (events[0].stackFrames?.length || events[0].stack) && (
