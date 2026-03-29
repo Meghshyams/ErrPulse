@@ -6,7 +6,7 @@ The ErrPulse dashboard is a React-based SPA served by the ErrPulse server at [ht
 
 The main dashboard shows:
 
-- **Health score** — a 0–100 donut chart based on your error rate. Higher score means fewer errors relative to total requests.
+- **Health score** — a 0–100 donut chart based on your error rate within the selected time window. Higher score means fewer errors relative to total requests. The score naturally recovers as errors age out of the window.
 - **Error count** — total errors in the last 24 hours
 - **Request count** — total tracked HTTP requests
 - **Error rate** — percentage of requests that resulted in errors
@@ -81,14 +81,24 @@ A chronological list of every occurrence of this error, showing:
 - Request context (if available)
 - Environment info (runtime, OS, browser)
 
+### API Response (HTTP Errors)
+
+For HTTP and network errors, the error detail page shows the linked API response inline — no need to navigate to the Requests page. This section includes tabbed views for:
+
+- **Response Body** — the API response formatted as JSON
+- **Request Body** — the outgoing payload
+- **Headers** — response headers
+
+This section only appears for `http_error` and `network_error` type errors where a linked request (via correlation ID) is available.
+
 ### Status Management
 
 Change the error's status:
 
 - **Unresolved** — default, needs attention
 - **Acknowledged** — someone is looking at it
-- **Resolved** — fixed
-- **Ignored** — not worth tracking
+- **Resolved** — fixed. If the same error recurs, it is automatically reopened as **unresolved** (regression detection)
+- **Ignored** — not worth tracking. Ignored errors stay ignored even if they recur
 
 ## Requests Page
 
@@ -137,6 +147,7 @@ When you have multiple projects sending errors to ErrPulse, the dashboard shows 
 - Click the project icon in the sidebar to open the project list
 - Select a project to filter all views (overview, errors, requests) to that project only
 - Select "All Projects" to see everything
+- Your project selection is persisted to localStorage and survives page refreshes
 
 ## Light / Dark Mode
 
@@ -147,11 +158,11 @@ Toggle between light and dark themes using the sun/moon icon in the sidebar. You
 
 ## Favicon Badge
 
-When the dashboard tab is not focused, a red notification badge appears on the favicon showing the count of new errors that arrived while you were away. The badge resets automatically when you switch back to the tab.
+When the dashboard tab is not focused, a red notification badge appears on the favicon showing the count of new errors (including repeat occurrences) that arrived while you were away. The badge resets automatically when you switch back to the tab.
 
 ## Toast Notifications
 
-When a new error is detected, a toast notification slides in from the top-right corner:
+When a new error is detected (both first-time errors and repeat occurrences), a toast notification slides in from the top-right corner:
 
 - Shows the error message and severity
 - Auto-dismisses after 4 seconds

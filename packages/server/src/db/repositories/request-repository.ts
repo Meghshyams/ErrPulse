@@ -108,6 +108,13 @@ export class RequestRepository {
     return row ? rowToDetail(row) : null;
   }
 
+  findByCorrelationId(correlationId: string): RequestDetailEntry | null {
+    const row = this.db
+      .prepare("SELECT * FROM requests WHERE correlation_id = ? ORDER BY timestamp DESC LIMIT 1")
+      .get(correlationId) as RequestRow | undefined;
+    return row ? rowToDetail(row) : null;
+  }
+
   findAll(options: { page?: number; pageSize?: number; projectId?: string }): {
     requests: RequestLogEntry[];
     total: number;
@@ -142,11 +149,24 @@ export class RequestRepository {
     };
   }
 
-  getTotalCount(projectId?: string): number {
+  getTotalCount(projectId?: string, hours?: number): number {
+    const since = hours ? new Date(Date.now() - hours * 3600_000).toISOString() : null;
+    if (projectId && since) {
+      const result = this.db
+        .prepare("SELECT COUNT(*) as count FROM requests WHERE project_id = ? AND timestamp >= ?")
+        .get(projectId, since) as { count: number };
+      return result.count;
+    }
     if (projectId) {
       const result = this.db
         .prepare("SELECT COUNT(*) as count FROM requests WHERE project_id = ?")
         .get(projectId) as { count: number };
+      return result.count;
+    }
+    if (since) {
+      const result = this.db
+        .prepare("SELECT COUNT(*) as count FROM requests WHERE timestamp >= ?")
+        .get(since) as { count: number };
       return result.count;
     }
     const result = this.db.prepare("SELECT COUNT(*) as count FROM requests").get() as {
@@ -155,13 +175,30 @@ export class RequestRepository {
     return result.count;
   }
 
-  getErrorCount(projectId?: string): number {
+  getErrorCount(projectId?: string, hours?: number): number {
+    const since = hours ? new Date(Date.now() - hours * 3600_000).toISOString() : null;
+    if (projectId && since) {
+      const result = this.db
+        .prepare(
+          "SELECT COUNT(*) as count FROM requests WHERE status_code >= 400 AND project_id = ? AND timestamp >= ?"
+        )
+        .get(projectId, since) as { count: number };
+      return result.count;
+    }
     if (projectId) {
       const result = this.db
         .prepare(
           "SELECT COUNT(*) as count FROM requests WHERE status_code >= 400 AND project_id = ?"
         )
         .get(projectId) as { count: number };
+      return result.count;
+    }
+    if (since) {
+      const result = this.db
+        .prepare(
+          "SELECT COUNT(*) as count FROM requests WHERE status_code >= 400 AND timestamp >= ?"
+        )
+        .get(since) as { count: number };
       return result.count;
     }
     const result = this.db

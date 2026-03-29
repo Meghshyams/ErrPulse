@@ -66,10 +66,13 @@ export class ErrorRepository {
           .get(fingerprint) as { id: string; count: number } | undefined);
 
     if (existing) {
+      // Reopen resolved errors on recurrence (regression detection).
+      // Ignored/acknowledged errors stay as-is — the user explicitly chose those states.
       this.db
         .prepare(
           `UPDATE errors SET last_seen = ?, count = count + 1, last_event_id = ?,
-           severity = CASE WHEN ? = 'fatal' THEN 'fatal' ELSE severity END
+           severity = CASE WHEN ? = 'fatal' THEN 'fatal' ELSE severity END,
+           status = CASE WHEN status = 'resolved' THEN 'unresolved' ELSE status END
            WHERE id = ?`
         )
         .run(timestamp, eventId, severity, existing.id);

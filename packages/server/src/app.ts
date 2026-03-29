@@ -37,7 +37,7 @@ export function createApp(config: ServerConfig): AppContext {
 
   // API routes
   app.use("/api/events", createEventsRouter(errorRepo, eventRepo, requestRepo, projectRepo));
-  app.use("/api/errors", createErrorsRouter(errorRepo, eventRepo));
+  app.use("/api/errors", createErrorsRouter(errorRepo, eventRepo, requestRepo));
   app.use("/api/requests", createRequestsRouter(requestRepo));
   app.use("/api/stats", createStatsRouter(errorRepo, eventRepo, requestRepo));
   app.use("/api/health", createHealthRouter());

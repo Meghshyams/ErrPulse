@@ -79,6 +79,10 @@ export function sendRequestLog(entry: {
   duration: number;
   timestamp: string;
   correlationId?: string;
+  headers?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  requestBody?: string;
+  responseBody?: string;
   source?: string;
 }): void {
   if (!endpoint) return;

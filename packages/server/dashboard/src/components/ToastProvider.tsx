@@ -100,6 +100,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           severity: payload.severity ?? "error",
           source: payload.source ?? "unknown",
         });
+      } else if (msg.type === "new_event") {
+        const payload = msg.payload as {
+          errorGroup?: { message?: string; severity?: string; source?: string };
+          event?: { message?: string; severity?: string; source?: string };
+        };
+        const info = payload.event ?? payload.errorGroup;
+        addToast({
+          message: info?.message ?? "New error event",
+          severity: info?.severity ?? "error",
+          source: info?.source ?? "unknown",
+        });
       }
     },
     [addToast]

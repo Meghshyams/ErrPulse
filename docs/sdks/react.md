@@ -131,6 +131,19 @@ The SDK installs the following instruments automatically:
 | Resource error handler | Failed img/script/css loads   | Capture-phase event listener    |
 | Error boundary         | React component crashes       | React error boundary            |
 
+## Request Detail Capture
+
+The fetch interceptor automatically captures request and response details for every outgoing `fetch` call:
+
+- **Request headers** — sanitized (sensitive headers like `authorization` and `cookie` are redacted)
+- **Response headers** — captured from the response
+- **Request body** — captured for `string` and `URLSearchParams` bodies (Blob/ArrayBuffer/FormData are skipped for performance)
+- **Response body** — captured by cloning the response stream (does not consume the original)
+
+::: tip Performance
+Request and response bodies are capped at **16 KB** each. Anything larger is truncated with a `...[truncated]` indicator. Response bodies are read via `response.clone()` so the original stream remains available to your application code.
+:::
+
 ## Correlation ID
 
 The React SDK automatically injects an `X-ErrPulse-Correlation-ID` header into every outgoing `fetch` request. This links frontend requests to backend errors:

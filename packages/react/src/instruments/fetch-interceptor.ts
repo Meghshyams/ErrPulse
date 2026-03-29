@@ -5,9 +5,42 @@ import {
   generateEventId,
   CORRELATION_HEADER,
   generateCorrelationId,
+  sanitizeHeaders,
   type ErrPulseEvent,
 } from "@errpulse/core";
 import { enqueueEvent, getEndpoint, sendRequestLog } from "../client.js";
+
+// Max size for body capture (16 KB) to avoid performance issues
+const MAX_BODY_SIZE = 16 * 1024;
+
+function headersToRecord(headers: Headers): Record<string, string> {
+  const record: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    record[key] = value;
+  });
+  return record;
+}
+
+function captureBodyString(body: BodyInit | null | undefined): string | undefined {
+  if (body === undefined || body === null) return undefined;
+  try {
+    let str: string;
+    if (typeof body === "string") {
+      str = body;
+    } else if (body instanceof URLSearchParams) {
+      str = body.toString();
+    } else {
+      // Blob, ArrayBuffer, FormData, ReadableStream — skip to avoid async/perf issues
+      return undefined;
+    }
+    if (str.length > MAX_BODY_SIZE) {
+      return str.slice(0, MAX_BODY_SIZE) + "...[truncated]";
+    }
+    return str;
+  } catch {
+    return undefined;
+  }
+}
 
 export function installFetchInterceptor(): () => void {
   const originalFetch = window.fetch;
@@ -33,6 +66,10 @@ export function installFetchInterceptor(): () => void {
     const method = init?.method ?? "GET";
     const startTime = Date.now();
 
+    // Capture request headers and body before the fetch
+    const reqHeaders = sanitizeHeaders(headersToRecord(headers));
+    const reqBody = captureBodyString(init?.body);
+
     try {
       const response = await originalFetch.call(window, input, {
         ...init,
@@ -40,6 +77,23 @@ export function installFetchInterceptor(): () => void {
       });
 
       const duration = Date.now() - startTime;
+
+      // Capture response headers
+      const resHeaders = sanitizeHeaders(headersToRecord(response.headers));
+
+      // Clone the response to read the body without consuming the original
+      let resBody: string | undefined;
+      try {
+        const cloned = response.clone();
+        const text = await cloned.text();
+        if (text.length > MAX_BODY_SIZE) {
+          resBody = text.slice(0, MAX_BODY_SIZE) + "...[truncated]";
+        } else {
+          resBody = text;
+        }
+      } catch {
+        // Body may not be readable (e.g. opaque responses) — skip
+      }
 
       // Log ALL requests to the Requests tab
       sendRequestLog({
@@ -49,6 +103,10 @@ export function installFetchInterceptor(): () => void {
         duration,
         timestamp: new Date().toISOString(),
         correlationId,
+        headers: reqHeaders,
+        responseHeaders: resHeaders,
+        requestBody: reqBody,
+        responseBody: resBody,
         source: "frontend",
       });
 
@@ -90,6 +148,8 @@ export function installFetchInterceptor(): () => void {
         duration,
         timestamp: new Date().toISOString(),
         correlationId,
+        headers: reqHeaders,
+        requestBody: reqBody,
         source: "frontend",
       });
 
