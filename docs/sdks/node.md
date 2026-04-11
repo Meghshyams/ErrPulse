@@ -23,6 +23,8 @@ This single import installs handlers for:
 - `console.error` calls
 - Memory threshold warnings
 
+With `captureConsoleLogs: true`, it also captures `console.log`, `console.warn`, `console.info`, and `console.debug` calls, which appear in the dedicated **Logs** section of the dashboard.
+
 ## Configuration
 
 Use `init()` for custom configuration:
@@ -36,6 +38,7 @@ init({
   enabled: true,
   sampleRate: 1.0,
   captureConsoleErrors: true,
+  captureConsoleLogs: false,
   captureUncaughtExceptions: true,
   captureUnhandledRejections: true,
   monitorMemory: true,
@@ -60,6 +63,7 @@ init({
 | `enabled`                    | `boolean`  | `true`                    | Enable or disable the SDK                        |
 | `sampleRate`                 | `number`   | `1`                       | Sample rate from 0.0 to 1.0 (1.0 = capture all)  |
 | `captureConsoleErrors`       | `boolean`  | `true`                    | Capture `console.error` calls                    |
+| `captureConsoleLogs`         | `boolean`  | `false`                   | Capture `console.log/warn/info/debug` to Logs    |
 | `captureUncaughtExceptions`  | `boolean`  | `true`                    | Capture uncaught exceptions                      |
 | `captureUnhandledRejections` | `boolean`  | `true`                    | Capture unhandled promise rejections             |
 | `monitorMemory`              | `boolean`  | `true`                    | Monitor memory usage and emit warnings           |

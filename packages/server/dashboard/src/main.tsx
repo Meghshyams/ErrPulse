@@ -10,6 +10,7 @@ import { OverviewPage } from "./pages/OverviewPage";
 import { ErrorsPage } from "./pages/ErrorsPage";
 import { ErrorDetailPage } from "./pages/ErrorDetailPage";
 import { RequestsPage } from "./pages/RequestsPage";
+import { LogsPage } from "./pages/LogsPage";
 import "./app.css";
 
 createRoot(document.getElementById("root")!).render(
@@ -25,6 +26,7 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/errors" element={<ErrorsPage />} />
                 <Route path="/errors/:id" element={<ErrorDetailPage />} />
                 <Route path="/requests" element={<RequestsPage />} />
+                <Route path="/logs" element={<LogsPage />} />
               </Route>
             </Routes>
           </ToastProvider>

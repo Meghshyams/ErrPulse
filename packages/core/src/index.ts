@@ -1,5 +1,6 @@
 // Types
-export { ErrorSource, Severity, ErrorType, ErrorStatus } from "./types/enums.js";
+export { ErrorSource, Severity, ErrorType, ErrorStatus, LogLevel } from "./types/enums.js";
+export type { LogEntry } from "./types/log-entry.js";
 export type { StackFrame, ErrPulseEvent, ErrorGroup } from "./types/error-event.js";
 export type { RequestContext } from "./types/request-context.js";
 export type { EnvironmentInfo } from "./types/environment.js";
@@ -51,4 +52,7 @@ export {
   BATCH_INTERVAL_MS,
   SENSITIVE_HEADERS,
   SENSITIVE_FIELDS,
+  LOGS_ENDPOINT,
+  LOG_BATCH_SIZE,
+  LOG_BATCH_INTERVAL_MS,
 } from "./constants.js";

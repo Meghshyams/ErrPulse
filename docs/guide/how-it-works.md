@@ -12,6 +12,7 @@ Your Backend (Express/Next)       Your Frontend (React)
 | - uncaught exceptions     |     | - runtime errors          |
 | - unhandled rejections    |     | - fetch / XHR failures    |
 | - console.error           |     | - React component crashes |
+| - console.log/warn/info   |     | - console.log/warn/info   |
 | - memory warnings         |     | - resource load failures  |
 +-------------+-------------+     +-------------+-------------+
               |                                 |
@@ -41,6 +42,7 @@ Your Backend (Express/Next)       Your Frontend (React)
               |  - Overview + health score  |
               |  - Errors + sparklines      |
               |  - Requests + detail panel  |
+              |  - Logs (console output)    |
               |  - Light/dark theme         |
               |  - Keyboard shortcuts       |
               |  - Toast notifications      |
@@ -131,6 +133,7 @@ ErrPulse uses **SQLite** with **WAL (Write-Ahead Logging)** mode for the databas
 | `errors`       | Error groups with fingerprint, type, message, status, count, explanation                            |
 | `error_events` | Individual error events with full stack trace and context                                           |
 | `requests`     | HTTP request log with method, URL, status, duration, headers, request/response body, correlation ID |
+| `logs`         | Console log entries with level, message, source, environment, correlation ID                        |
 
 ## WebSocket Real-Time Feed
 
@@ -142,3 +145,4 @@ The dashboard connects to `ws://localhost:3800/ws` for live updates. The server 
 | New event for existing error | `new_event`     |
 | Error status updated         | `status_change` |
 | HTTP request logged          | `new_request`   |
+| Console log captured         | `new_log`       |

@@ -28,3 +28,10 @@ export enum ErrorStatus {
   Resolved = "resolved",
   Ignored = "ignored",
 }
+
+export enum LogLevel {
+  Log = "log",
+  Info = "info",
+  Warn = "warn",
+  Debug = "debug",
+}

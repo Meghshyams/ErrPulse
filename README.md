@@ -35,7 +35,7 @@ Sentry requires 20+ containers, 16GB RAM, and costs $26+/month. Nothing works du
 ErrPulse is different:
 
 - **One command**: `npx errpulse` — server + dashboard at `localhost:3800`
-- **Catches everything**: Uncaught exceptions, unhandled rejections, failed fetches, React crashes, console.error, resource failures, memory warnings — all of it
+- **Catches everything**: Uncaught exceptions, unhandled rejections, failed fetches, React crashes, console.error, console.log/warn/info/debug, resource failures, memory warnings — all of it
 - **Real-time dashboard**: Errors appear instantly via WebSocket
 - **Plain-English explanations**: Every error gets a human-readable explanation with fix suggestions
 - **Frontend + Backend**: Correlate a user's click to the server error it caused
@@ -108,6 +108,7 @@ Navigate to [http://localhost:3800](http://localhost:3800) — see all errors in
 | Express route errors (4xx/5xx) | Error handler middleware               |
 | Next.js API route errors       | `withErrPulse()` wrapper               |
 | `console.error` calls          | Monkey-patch                           |
+| `console.log/warn/info/debug`  | Monkey-patch (opt-in)                  |
 | Memory warnings                | Periodic `process.memoryUsage()` check |
 | All HTTP requests              | Request handler middleware             |
 
@@ -120,6 +121,7 @@ Navigate to [http://localhost:3800](http://localhost:3800) — see all errors in
 | React component crashes                   | Error Boundary                            |
 | Failed fetch/XHR requests                 | `fetch()` + `XMLHttpRequest` interceptors |
 | `console.error` calls                     | Monkey-patch                              |
+| `console.log/warn/info/debug`             | Monkey-patch (opt-in)                     |
 | Resource load failures (img, script, css) | Capture-phase error listener              |
 | All HTTP requests                         | Fetch interceptor                         |
 
@@ -143,6 +145,7 @@ init({
   enabled: true, // Kill switch
   sampleRate: 1.0, // 0.0 - 1.0
   captureConsoleErrors: true,
+  captureConsoleLogs: false, // opt-in: capture console.log/warn/info/debug
   captureUncaughtExceptions: true,
   captureUnhandledRejections: true,
   monitorMemory: true,
@@ -188,6 +191,7 @@ import { ErrPulseProvider } from "@errpulse/react";
   endpoint="http://localhost:3800"
   projectId="my-web-app"
   captureConsoleErrors={true}
+  captureConsoleLogs={false} // opt-in: capture console.log/warn/info/debug
   captureFetch={true}
   captureXHR={true}
   captureResourceErrors={true}
@@ -225,6 +229,7 @@ The dashboard runs at `http://localhost:3800` and provides:
 - **Errors**: Filterable list by severity, source, status, and time range (1h/6h/24h/7d). Inline sparkline trends per error. Search by message. Inline quick actions (resolve/acknowledge/ignore) on hover — no need to click into detail view
 - **Error Detail**: Plain-English explanation, stack trace viewer with in-app frame highlighting, event timeline, status management
 - **Requests**: HTTP request log with method, URL, status code, duration, timing. Click any row to expand a detail panel showing request/response headers, request body, and response body. Error-linked requests are flagged with a visual indicator
+- **Logs**: Dedicated console log viewer for `console.log`, `console.warn`, `console.info`, and `console.debug` output. Filterable by level, source, and full-text search. Expandable rows show environment details, correlation IDs, and extra data. Real-time streaming via WebSocket
 - **Project Selector**: Filter all views by project when monitoring multiple apps
 - **Light/Dark Mode**: Toggle between themes, persisted to localStorage
 - **Keyboard Shortcuts**: `j`/`k` navigate errors, `r` resolve, `a` acknowledge, `i` ignore, `/` search
@@ -266,6 +271,7 @@ Your Backend (Express/Next)       Your Frontend (React)
 | - uncaught exceptions     |     | - runtime errors          |
 | - unhandled rejections    |     | - fetch / XHR failures    |
 | - console.error           |     | - React component crashes |
+| - console.log/warn/info   |     | - console.log/warn/info   |
 | - memory warnings         |     | - resource load failures  |
 +-------------+-------------+     +-------------+-------------+
               |                                 |
@@ -295,6 +301,7 @@ Your Backend (Express/Next)       Your Frontend (React)
               |  - Overview + health score  |
               |  - Errors + sparklines      |
               |  - Requests + detail panel  |
+              |  - Logs (console output)    |
               |  - Light/dark theme         |
               |  - Keyboard shortcuts       |
               |  - Toast notifications      |
@@ -344,6 +351,10 @@ All endpoints are served from the ErrPulse server (default `http://localhost:380
 | `PATCH` | `/api/errors/:id`     | Update error status             |
 | `GET`   | `/api/requests`       | List HTTP requests              |
 | `GET`   | `/api/requests/:id`   | Request detail (headers, body)  |
+| `POST`  | `/api/logs`           | Ingest a single log entry       |
+| `POST`  | `/api/logs/batch`     | Ingest multiple log entries     |
+| `GET`   | `/api/logs`           | List logs (filterable)          |
+| `POST`  | `/api/logs/clear`     | Clear log entries               |
 | `GET`   | `/api/stats`          | Dashboard overview stats        |
 | `GET`   | `/api/projects`       | List registered projects        |
 | `GET`   | `/api/health`         | Health check                    |

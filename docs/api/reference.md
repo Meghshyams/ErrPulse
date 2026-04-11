@@ -281,6 +281,92 @@ Get full details for a single request, including headers and body.
 Sensitive headers (authorization, cookie, etc.) are automatically redacted. Request and response bodies are capped at 16 KB to prevent performance issues.
 :::
 
+## Logs
+
+### `POST /api/logs`
+
+Ingest a single log entry.
+
+**Request body:**
+
+```json
+{
+  "level": "log",
+  "message": "User clicked checkout button",
+  "source": "frontend",
+  "timestamp": "2025-01-15T10:30:00.000Z",
+  "projectId": "web-app",
+  "environment": { "runtime": "browser", "browser": "Mozilla/5.0..." },
+  "correlationId": "a1b2c3d4",
+  "extra": { "component": "CheckoutPage" }
+}
+```
+
+Required fields: `message`, `level`. Valid levels: `log`, `info`, `warn`, `debug`.
+
+**Response:**
+
+```json
+{
+  "id": "log_abc123"
+}
+```
+
+### `POST /api/logs/batch`
+
+Ingest multiple log entries in a single request.
+
+**Request body:** Array of log entries (same format as above).
+
+**Response:** Array of IDs.
+
+### `GET /api/logs`
+
+List log entries with optional filters.
+
+**Query parameters:**
+
+| Parameter   | Type     | Default | Description                                     |
+| ----------- | -------- | ------- | ----------------------------------------------- |
+| `level`     | `string` | —       | Filter by level: `log`, `info`, `warn`, `debug` |
+| `source`    | `string` | —       | Filter by source: `backend`, `frontend`         |
+| `search`    | `string` | —       | Search in log messages                          |
+| `page`      | `number` | `1`     | Page number                                     |
+| `pageSize`  | `number` | `100`   | Results per page                                |
+| `projectId` | `string` | —       | Filter by project                               |
+
+**Response:**
+
+```json
+{
+  "logs": [
+    {
+      "id": "log_abc123",
+      "level": "warn",
+      "message": "Slow query detected: SELECT * FROM users took 2340ms",
+      "timestamp": "2025-01-15T10:30:00.000Z",
+      "source": "backend",
+      "environment": { "runtime": "node", "nodeVersion": "20.10.0" },
+      "correlationId": "a1b2c3d4",
+      "projectId": "api-service"
+    }
+  ],
+  "total": 1024
+}
+```
+
+### `POST /api/logs/clear`
+
+Clear all log entries. Optionally pass `{ "projectId": "..." }` to clear only a specific project's logs.
+
+**Response:**
+
+```json
+{
+  "success": true
+}
+```
+
 ## Stats & Health
 
 ### `GET /api/stats`
@@ -361,7 +447,7 @@ List all registered projects.
 
 ### `POST /api/clear`
 
-Clear all stored data (errors, events, requests, projects).
+Clear all stored data (errors, events, requests, logs). Optionally pass `{ "projectId": "..." }` to clear only a specific project's data.
 
 **Response:**
 
@@ -396,6 +482,7 @@ ws.onmessage = (event) => {
 | `new_event`     | `{ errorGroup: ErrorGroup, event: ErrPulseEvent }` | A new event is added to an existing error group |
 | `status_change` | `ErrorGroup`                                       | An error's status is updated                    |
 | `new_request`   | `RequestLogEntry`                                  | An HTTP request is logged                       |
+| `new_log`       | `LogEntry`                                         | A console log is captured                       |
 
 **Example messages:**
 

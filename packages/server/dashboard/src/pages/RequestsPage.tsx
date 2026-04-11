@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useProject } from "../context/ProjectContext";
-import { fetchJSON } from "../lib/api";
+import { fetchJSON, clearAllLogs } from "../lib/api";
 import {
   Globe,
   AlertTriangle,
@@ -11,6 +11,7 @@ import {
   FileText,
   ArrowDownUp,
   FileCode,
+  Trash2,
 } from "lucide-react";
 import { cn, timeAgo } from "../lib/utils";
 import { EmptyState } from "../components/EmptyState";
@@ -280,7 +281,10 @@ export function RequestsPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const { selectedProjectId } = useProject();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const { selectedProjectId, projects } = useProject();
+  const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   const load = useCallback(async () => {
     try {
@@ -313,6 +317,18 @@ export function RequestsPage() {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
+  const handleClearAll = useCallback(async () => {
+    setClearing(true);
+    try {
+      await clearAllLogs(selectedProjectId);
+      load();
+    } catch {
+      // Silently fail
+    }
+    setClearing(false);
+    setShowClearConfirm(false);
+  }, [load, selectedProjectId]);
+
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-5">
       {/* Header */}
@@ -322,7 +338,57 @@ export function RequestsPage() {
         <span className="text-[11px] font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded">
           {total}
         </span>
+        {total > 0 && (
+          <button
+            onClick={() => setShowClearConfirm(true)}
+            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-destructive/80 hover:text-destructive bg-destructive/5 hover:bg-destructive/10 border border-destructive/20 hover:border-destructive/30 transition-all cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Clear All</span>
+          </button>
+        )}
       </div>
+
+      {/* Clear confirmation dialog */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-up">
+          <div className="bg-card border border-border rounded-xl shadow-2xl p-6 max-w-sm mx-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-destructive" />
+              </div>
+              <div>
+                <h3 className="text-[15px] font-semibold">
+                  {selectedProject
+                    ? `Clear logs for "${selectedProject.name}"?`
+                    : "Clear all logs?"}
+                </h3>
+                <p className="text-[12px] text-muted-foreground mt-0.5">
+                  {selectedProject
+                    ? `This will permanently delete all errors and requests for "${selectedProject.name}". This action cannot be undone.`
+                    : "This will permanently delete all errors and requests across all projects. This action cannot be undone."}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                disabled={clearing}
+                className="px-4 py-2 rounded-lg text-[13px] font-medium text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleClearAll}
+                disabled={clearing}
+                className="px-4 py-2 rounded-lg text-[13px] font-medium text-white bg-destructive hover:bg-destructive/90 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {clearing ? "Clearing..." : "Clear All"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-card/80 border border-border/50 rounded-lg overflow-hidden">

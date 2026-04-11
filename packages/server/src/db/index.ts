@@ -84,6 +84,24 @@ CREATE INDEX IF NOT EXISTS idx_requests_correlation_id ON requests(correlation_i
 CREATE INDEX IF NOT EXISTS idx_requests_status_code ON requests(status_code);
 CREATE INDEX IF NOT EXISTS idx_requests_project_id ON requests(project_id);
 
+CREATE TABLE IF NOT EXISTS logs (
+  id TEXT PRIMARY KEY,
+  level TEXT NOT NULL,
+  message TEXT NOT NULL,
+  timestamp TEXT NOT NULL,
+  source TEXT NOT NULL DEFAULT 'backend',
+  environment TEXT,
+  correlation_id TEXT,
+  project_id TEXT,
+  extra TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_logs_timestamp ON logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_logs_level ON logs(level);
+CREATE INDEX IF NOT EXISTS idx_logs_source ON logs(source);
+CREATE INDEX IF NOT EXISTS idx_logs_project_id ON logs(project_id);
+CREATE INDEX IF NOT EXISTS idx_logs_correlation_id ON logs(correlation_id);
+
 CREATE TABLE IF NOT EXISTS schema_migrations (
   version INTEGER PRIMARY KEY,
   applied_at TEXT NOT NULL
@@ -136,6 +154,31 @@ function runMigrations(db: Database.Database): void {
   if (!hasColumn(db, "requests", "project_id")) {
     db.exec("ALTER TABLE requests ADD COLUMN project_id TEXT");
     db.exec("CREATE INDEX IF NOT EXISTS idx_requests_project_id ON requests(project_id)");
+  }
+
+  // Migration: Add logs table for existing databases
+  const tables = db
+    .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='logs'")
+    .get();
+  if (!tables) {
+    db.exec(`
+      CREATE TABLE logs (
+        id TEXT PRIMARY KEY,
+        level TEXT NOT NULL,
+        message TEXT NOT NULL,
+        timestamp TEXT NOT NULL,
+        source TEXT NOT NULL DEFAULT 'backend',
+        environment TEXT,
+        correlation_id TEXT,
+        project_id TEXT,
+        extra TEXT
+      );
+      CREATE INDEX idx_logs_timestamp ON logs(timestamp);
+      CREATE INDEX idx_logs_level ON logs(level);
+      CREATE INDEX idx_logs_source ON logs(source);
+      CREATE INDEX idx_logs_project_id ON logs(project_id);
+      CREATE INDEX idx_logs_correlation_id ON logs(correlation_id);
+    `);
   }
 
   // Migration: Add response_headers and request_body columns to requests

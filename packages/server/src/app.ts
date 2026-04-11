@@ -14,6 +14,8 @@ import { createRequestsRouter } from "./api/routes/requests.js";
 import { createStatsRouter } from "./api/routes/stats.js";
 import { createHealthRouter } from "./api/routes/health.js";
 import { createProjectsRouter } from "./api/routes/projects.js";
+import { LogRepository } from "./db/repositories/log-repository.js";
+import { createLogsRouter } from "./api/routes/logs.js";
 
 export interface AppContext {
   app: Express;
@@ -29,6 +31,7 @@ export function createApp(config: ServerConfig): AppContext {
   const eventRepo = new EventRepository(db);
   const requestRepo = new RequestRepository(db);
   const projectRepo = new ProjectRepository(db);
+  const logRepo = new LogRepository(db);
 
   const app = express();
 
@@ -42,12 +45,15 @@ export function createApp(config: ServerConfig): AppContext {
   app.use("/api/stats", createStatsRouter(errorRepo, eventRepo, requestRepo));
   app.use("/api/health", createHealthRouter());
   app.use("/api/projects", createProjectsRouter(projectRepo));
+  app.use("/api/logs", createLogsRouter(logRepo, projectRepo));
 
   // Clear endpoint
-  app.post("/api/clear", (_req, res) => {
+  app.post("/api/clear", (req, res) => {
     try {
-      errorRepo.clearAll();
-      requestRepo.clearAll();
+      const projectId = req.body?.projectId as string | undefined;
+      errorRepo.clearAll(projectId);
+      requestRepo.clearAll(projectId);
+      logRepo.clearAll(projectId);
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Failed to clear data" });

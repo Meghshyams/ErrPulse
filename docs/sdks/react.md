@@ -26,15 +26,16 @@ function App() {
 
 ### Props Reference
 
-| Prop                    | Type                                       | Default      | Description                                 |
-| ----------------------- | ------------------------------------------ | ------------ | ------------------------------------------- |
-| `endpoint`              | `string`                                   | **required** | ErrPulse server URL                         |
-| `projectId`             | `string`                                   | `undefined`  | Project identifier for multi-project setups |
-| `captureConsoleErrors`  | `boolean`                                  | `true`       | Capture `console.error` calls               |
-| `captureFetch`          | `boolean`                                  | `true`       | Intercept and track fetch requests          |
-| `captureXHR`            | `boolean`                                  | `true`       | Intercept and track XMLHttpRequest calls    |
-| `captureResourceErrors` | `boolean`                                  | `true`       | Capture failed img/script/css loads         |
-| `errorBoundaryFallback` | `ReactNode \| (error: Error) => ReactNode` | `undefined`  | Fallback UI for React crashes               |
+| Prop                    | Type                                       | Default      | Description                                   |
+| ----------------------- | ------------------------------------------ | ------------ | --------------------------------------------- |
+| `endpoint`              | `string`                                   | **required** | ErrPulse server URL                           |
+| `projectId`             | `string`                                   | `undefined`  | Project identifier for multi-project setups   |
+| `captureConsoleErrors`  | `boolean`                                  | `true`       | Capture `console.error` calls                 |
+| `captureConsoleLogs`    | `boolean`                                  | `false`      | Capture `console.log/warn/info/debug` to Logs |
+| `captureFetch`          | `boolean`                                  | `true`       | Intercept and track fetch requests            |
+| `captureXHR`            | `boolean`                                  | `true`       | Intercept and track XMLHttpRequest calls      |
+| `captureResourceErrors` | `boolean`                                  | `true`       | Capture failed img/script/css loads           |
+| `errorBoundaryFallback` | `ReactNode \| (error: Error) => ReactNode` | `undefined`  | Fallback UI for React crashes                 |
 
 ### Full Example
 
@@ -43,6 +44,7 @@ function App() {
   endpoint="http://localhost:3800"
   projectId="my-web-app"
   captureConsoleErrors={true}
+  captureConsoleLogs={false}
   captureFetch={true}
   captureXHR={true}
   captureResourceErrors={true}
@@ -121,15 +123,16 @@ function App() {
 
 The SDK installs the following instruments automatically:
 
-| Instrument             | What It Captures              | How                             |
-| ---------------------- | ----------------------------- | ------------------------------- |
-| Global error handler   | JavaScript runtime errors     | `window.onerror`                |
-| Rejection handler      | Unhandled promise rejections  | `window.onunhandledrejection`   |
-| Fetch interceptor      | Failed/errored fetch requests | Monkey-patches `window.fetch`   |
-| XHR interceptor        | Failed/errored XHR requests   | Monkey-patches `XMLHttpRequest` |
-| Console interceptor    | `console.error` calls         | Wraps `console.error`           |
-| Resource error handler | Failed img/script/css loads   | Capture-phase event listener    |
-| Error boundary         | React component crashes       | React error boundary            |
+| Instrument              | What It Captures              | How                             |
+| ----------------------- | ----------------------------- | ------------------------------- |
+| Global error handler    | JavaScript runtime errors     | `window.onerror`                |
+| Rejection handler       | Unhandled promise rejections  | `window.onunhandledrejection`   |
+| Fetch interceptor       | Failed/errored fetch requests | Monkey-patches `window.fetch`   |
+| XHR interceptor         | Failed/errored XHR requests   | Monkey-patches `XMLHttpRequest` |
+| Console interceptor     | `console.error` calls         | Wraps `console.error`           |
+| Console log interceptor | `console.log/warn/info/debug` | Wraps console methods (opt-in)  |
+| Resource error handler  | Failed img/script/css loads   | Capture-phase event listener    |
+| Error boundary          | React component crashes       | React error boundary            |
 
 ## Request Detail Capture
 

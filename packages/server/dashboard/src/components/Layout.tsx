@@ -3,13 +3,23 @@ import { useWebSocket } from "../hooks/useWebSocket";
 import { useProject } from "../context/ProjectContext";
 import { useTheme } from "../context/ThemeContext";
 import { useState, useCallback, useRef, useEffect } from "react";
-import { LayoutDashboard, AlertTriangle, Globe, Activity, BookOpen, Sun, Moon } from "lucide-react";
+import {
+  LayoutDashboard,
+  AlertTriangle,
+  Globe,
+  Terminal,
+  Activity,
+  BookOpen,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { cn } from "../lib/utils";
 
 const NAV_ITEMS = [
   { to: "/", icon: LayoutDashboard, label: "Overview", end: true },
   { to: "/errors", icon: AlertTriangle, label: "Errors" },
   { to: "/requests", icon: Globe, label: "Requests" },
+  { to: "/logs", icon: Terminal, label: "Logs" },
 ];
 
 const PROJECT_COLORS = [
