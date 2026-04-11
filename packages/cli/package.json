@@ -23,7 +23,18 @@
     "dashboard",
     "console-log",
     "error-handler",
-    "local-development"
+    "local-development",
+    "observability",
+    "logging",
+    "apm",
+    "error-reporting",
+    "self-hosted",
+    "open-source",
+    "free",
+    "react",
+    "nodejs",
+    "express",
+    "nextjs"
   ],
   "publishConfig": {
     "access": "public"

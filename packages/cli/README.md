@@ -48,11 +48,25 @@ Open [http://localhost:3800](http://localhost:3800) — see all errors in real-t
 
 ## What You Get
 
-- **Real-time dashboard** — Errors appear instantly via WebSocket
-- **Frontend + Backend** — Correlate user actions to server errors
-- **Plain-English explanations** — Every error gets a human-readable explanation with fix suggestions
-- **Multi-project** — Monitor multiple apps from one dashboard
-- **SQLite storage** — Zero-setup, runs entirely local
+- **Real-time dashboard** with 4 views: Overview, Errors, Requests, and Logs
+- **Catches everything** — uncaught exceptions, unhandled rejections, failed fetches, React crashes, console.error, console.log/warn/info/debug (opt-in), resource failures, memory warnings
+- **Frontend + Backend correlation** — trace a user's click to the server error it caused
+- **Plain-English explanations** — 46 built-in patterns explain errors in human-readable language with fix suggestions
+- **Console log capture** — opt-in capture of console.log/warn/info/debug to a dedicated Logs dashboard section
+- **Multi-project** — monitor multiple apps from one dashboard
+- **SQLite storage** — zero-setup, runs entirely local
+- **Light/Dark mode** — toggle themes in the dashboard
+
+## Dashboard
+
+The dashboard at `http://localhost:3800` provides:
+
+- **Overview** — Health score, error count, request count, error rate, real-time feed
+- **Errors** — Filterable list with sparklines, keyboard shortcuts (j/k/r/a/i), inline quick actions
+- **Requests** — HTTP request log with expandable detail panels (headers, body, response)
+- **Logs** — Console output viewer with level/source filtering, search, real-time streaming
+- **Project selector** — filter all views by project
+- **Clear all** — project-scoped data clearing with confirmation dialog
 
 ## Packages
 
@@ -60,13 +74,13 @@ Open [http://localhost:3800](http://localhost:3800) — see all errors in real-t
 | -------------------------------------------------------------------- | ------------------------------------------------ |
 | [`@errpulse/node`](https://www.npmjs.com/package/@errpulse/node)     | Backend SDK for Node.js, Express, Next.js        |
 | [`@errpulse/react`](https://www.npmjs.com/package/@errpulse/react)   | Frontend SDK for React                           |
-| [`@errpulse/server`](https://www.npmjs.com/package/@errpulse/server) | Express API + SQLite + WebSocket server          |
+| [`@errpulse/server`](https://www.npmjs.com/package/@errpulse/server) | Express API + SQLite + WebSocket + Dashboard     |
 | [`@errpulse/core`](https://www.npmjs.com/package/@errpulse/core)     | Shared types, fingerprinting, error explanations |
 
 ## Documentation
 
+- [Full Documentation](https://meghshyams.github.io/ErrPulse/)
 - [GitHub Repository](https://github.com/Meghshyams/ErrPulse)
-- [Full Documentation](https://github.com/Meghshyams/ErrPulse#readme)
 
 ## License
 

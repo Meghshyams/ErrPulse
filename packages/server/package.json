@@ -22,7 +22,15 @@
     "dashboard",
     "real-time",
     "localhost",
-    "local-development"
+    "local-development",
+    "sentry-alternative",
+    "observability",
+    "logging",
+    "apm",
+    "error-reporting",
+    "api-server",
+    "console-log",
+    "self-hosted"
   ],
   "publishConfig": {
     "access": "public"

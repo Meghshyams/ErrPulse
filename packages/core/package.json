@@ -14,7 +14,13 @@
     "error-monitoring",
     "error-tracking",
     "fingerprinting",
-    "errpulse"
+    "errpulse",
+    "error-handling",
+    "pii-sanitization",
+    "error-explanation",
+    "typescript",
+    "logging",
+    "observability"
   ],
   "publishConfig": {
     "access": "public"

@@ -28,6 +28,55 @@ function App() {
 
 That's it. Errors, failed requests, and React crashes are captured automatically.
 
+## What Gets Captured
+
+| Error Type                    | How                                   |
+| ----------------------------- | ------------------------------------- |
+| JavaScript runtime errors     | `window.onerror`                      |
+| Unhandled promise rejections  | `window.onunhandledrejection`         |
+| React component crashes       | Built-in Error Boundary               |
+| Failed fetch requests         | `fetch()` interceptor                 |
+| Failed XHR requests           | `XMLHttpRequest` interceptor          |
+| `console.error` calls         | Monkey-patch                          |
+| `console.log/warn/info/debug` | Monkey-patch (opt-in)                 |
+| Resource failures (img, css)  | Capture-phase error listener          |
+| All HTTP requests             | Fetch interceptor with detail capture |
+
+## Provider Props
+
+| Prop                    | Type                                       | Default      | Description                                   |
+| ----------------------- | ------------------------------------------ | ------------ | --------------------------------------------- |
+| `endpoint`              | `string`                                   | **required** | ErrPulse server URL                           |
+| `projectId`             | `string`                                   | `undefined`  | Project identifier for multi-project setups   |
+| `captureConsoleErrors`  | `boolean`                                  | `true`       | Capture `console.error` calls                 |
+| `captureConsoleLogs`    | `boolean`                                  | `false`      | Capture `console.log/warn/info/debug` to Logs |
+| `captureFetch`          | `boolean`                                  | `true`       | Intercept and track fetch requests            |
+| `captureXHR`            | `boolean`                                  | `true`       | Intercept and track XMLHttpRequest calls      |
+| `captureResourceErrors` | `boolean`                                  | `true`       | Capture failed img/script/css loads           |
+| `errorBoundaryFallback` | `ReactNode \| (error: Error) => ReactNode` | `undefined`  | Fallback UI for React crashes                 |
+
+### Full Example
+
+```tsx
+<ErrPulseProvider
+  endpoint="http://localhost:3800"
+  projectId="my-web-app"
+  captureConsoleErrors={true}
+  captureConsoleLogs={true}
+  captureFetch={true}
+  captureXHR={true}
+  captureResourceErrors={true}
+  errorBoundaryFallback={(error) => (
+    <div>
+      <h2>Something went wrong</h2>
+      <p>{error.message}</p>
+    </div>
+  )}
+>
+  <App />
+</ErrPulseProvider>
+```
+
 ## Manual Capture
 
 ```tsx
@@ -49,37 +98,40 @@ function CheckoutButton() {
 }
 ```
 
-## What Gets Captured
+## Error Boundary
 
-| Error Type                   | How                                       |
-| ---------------------------- | ----------------------------------------- |
-| JavaScript runtime errors    | `window.onerror`                          |
-| Unhandled promise rejections | `window.onunhandledrejection`             |
-| React component crashes      | Error Boundary                            |
-| Failed fetch/XHR requests    | `fetch()` + `XMLHttpRequest` interceptors |
-| `console.error` calls        | Monkey-patch                              |
-| Resource failures (img, css) | Capture-phase error listener              |
-| All HTTP requests            | Fetch interceptor                         |
+The `ErrPulseProvider` includes a built-in error boundary. When a React component crashes, it captures the error with full stack trace and component stack, reports it to the server, and renders the `errorBoundaryFallback` if provided.
 
-## Provider Props
+You can also use the error boundary directly:
 
-| Prop                    | Type        | Default      | Description                                 |
-| ----------------------- | ----------- | ------------ | ------------------------------------------- |
-| `endpoint`              | `string`    | **required** | ErrPulse server URL                         |
-| `projectId`             | `string`    | `undefined`  | Project identifier for multi-project setups |
-| `captureConsoleErrors`  | `boolean`   | `true`       | Capture `console.error` calls               |
-| `captureFetch`          | `boolean`   | `true`       | Intercept and track fetch requests          |
-| `captureXHR`            | `boolean`   | `true`       | Intercept and track XMLHttpRequest calls    |
-| `captureResourceErrors` | `boolean`   | `true`       | Capture failed img/script/css loads         |
-| `errorBoundaryFallback` | `ReactNode` | `undefined`  | Fallback UI for React crashes               |
+```tsx
+import { ErrPulseErrorBoundary } from "@errpulse/react";
+
+<ErrPulseErrorBoundary fallback={<p>Something broke</p>}>
+  <RiskyComponent />
+</ErrPulseErrorBoundary>;
+```
 
 ## Error Correlation
 
-The SDK automatically injects an `X-ErrPulse-Correlation-ID` header into every `fetch` request. When paired with `@errpulse/node` on the backend, the dashboard shows the full chain: **user action -> frontend request -> backend error**.
+The SDK automatically injects an `X-ErrPulse-Correlation-ID` header into every outgoing `fetch` request. When paired with `@errpulse/node` on the backend, the dashboard shows the full chain: **user action -> frontend request -> backend error**.
+
+## Request Detail Capture
+
+The fetch interceptor captures full request/response details:
+
+- Request and response headers (sensitive headers redacted)
+- Request body (string and URLSearchParams)
+- Response body (via `response.clone()`)
+- Bodies capped at 16 KB each
+
+## Page Unload
+
+The SDK uses `navigator.sendBeacon()` on page unload to flush any remaining buffered events and logs, ensuring nothing is lost when the user navigates away.
 
 ## Documentation
 
-- [Full SDK Docs](https://github.com/Meghshyams/ErrPulse/blob/main/docs/sdks/react.md)
+- [Full SDK Docs](https://meghshyams.github.io/ErrPulse/sdks/react)
 - [GitHub Repository](https://github.com/Meghshyams/ErrPulse)
 
 ## License
