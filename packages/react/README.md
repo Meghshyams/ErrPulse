@@ -51,27 +51,29 @@ function CheckoutButton() {
 
 ## What Gets Captured
 
-| Error Type                   | How                                       |
-| ---------------------------- | ----------------------------------------- |
-| JavaScript runtime errors    | `window.onerror`                          |
-| Unhandled promise rejections | `window.onunhandledrejection`             |
-| React component crashes      | Error Boundary                            |
-| Failed fetch/XHR requests    | `fetch()` + `XMLHttpRequest` interceptors |
-| `console.error` calls        | Monkey-patch                              |
-| Resource failures (img, css) | Capture-phase error listener              |
-| All HTTP requests            | Fetch interceptor                         |
+| Error Type                    | How                                       |
+| ----------------------------- | ----------------------------------------- |
+| JavaScript runtime errors     | `window.onerror`                          |
+| Unhandled promise rejections  | `window.onunhandledrejection`             |
+| React component crashes       | Error Boundary                            |
+| Failed fetch/XHR requests     | `fetch()` + `XMLHttpRequest` interceptors |
+| `console.error` calls         | Monkey-patch                              |
+| `console.log/warn/info/debug` | Monkey-patch (opt-in)                     |
+| Resource failures (img, css)  | Capture-phase error listener              |
+| All HTTP requests             | Fetch interceptor                         |
 
 ## Provider Props
 
-| Prop                    | Type        | Default      | Description                                 |
-| ----------------------- | ----------- | ------------ | ------------------------------------------- |
-| `endpoint`              | `string`    | **required** | ErrPulse server URL                         |
-| `projectId`             | `string`    | `undefined`  | Project identifier for multi-project setups |
-| `captureConsoleErrors`  | `boolean`   | `true`       | Capture `console.error` calls               |
-| `captureFetch`          | `boolean`   | `true`       | Intercept and track fetch requests          |
-| `captureXHR`            | `boolean`   | `true`       | Intercept and track XMLHttpRequest calls    |
-| `captureResourceErrors` | `boolean`   | `true`       | Capture failed img/script/css loads         |
-| `errorBoundaryFallback` | `ReactNode` | `undefined`  | Fallback UI for React crashes               |
+| Prop                    | Type        | Default      | Description                                   |
+| ----------------------- | ----------- | ------------ | --------------------------------------------- |
+| `endpoint`              | `string`    | **required** | ErrPulse server URL                           |
+| `projectId`             | `string`    | `undefined`  | Project identifier for multi-project setups   |
+| `captureConsoleErrors`  | `boolean`   | `true`       | Capture `console.error` calls                 |
+| `captureConsoleLogs`    | `boolean`   | `false`      | Capture `console.log/warn/info/debug` to Logs |
+| `captureFetch`          | `boolean`   | `true`       | Intercept and track fetch requests            |
+| `captureXHR`            | `boolean`   | `true`       | Intercept and track XMLHttpRequest calls      |
+| `captureResourceErrors` | `boolean`   | `true`       | Capture failed img/script/css loads           |
+| `errorBoundaryFallback` | `ReactNode` | `undefined`  | Fallback UI for React crashes                 |
 
 ## Error Correlation
 

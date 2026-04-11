@@ -57,15 +57,16 @@ captureMessage("Deployment started", "info", { version: "2.0" });
 
 ## What Gets Caught
 
-| Error Type                   | How                                    |
-| ---------------------------- | -------------------------------------- |
-| Uncaught exceptions          | `process.on('uncaughtException')`      |
-| Unhandled promise rejections | `process.on('unhandledRejection')`     |
-| Express route errors         | Error handler middleware               |
-| Next.js API route errors     | `withErrPulse()` wrapper               |
-| `console.error` calls        | Monkey-patch                           |
-| Memory warnings              | Periodic `process.memoryUsage()` check |
-| All HTTP requests            | Request handler middleware             |
+| Error Type                    | How                                    |
+| ----------------------------- | -------------------------------------- |
+| Uncaught exceptions           | `process.on('uncaughtException')`      |
+| Unhandled promise rejections  | `process.on('unhandledRejection')`     |
+| Express route errors          | Error handler middleware               |
+| Next.js API route errors      | `withErrPulse()` wrapper               |
+| `console.error` calls         | Monkey-patch                           |
+| `console.log/warn/info/debug` | Monkey-patch (opt-in)                  |
+| Memory warnings               | Periodic `process.memoryUsage()` check |
+| All HTTP requests             | Request handler middleware             |
 
 ## Configuration
 
@@ -78,6 +79,7 @@ init({
   enabled: true,
   sampleRate: 1.0,
   captureConsoleErrors: true,
+  captureConsoleLogs: false, // opt-in: capture console.log/warn/info/debug to Logs
   captureUncaughtExceptions: true,
   captureUnhandledRejections: true,
   monitorMemory: true,

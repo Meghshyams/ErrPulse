@@ -44,8 +44,8 @@ console.log(ERROR_PATTERNS.length); // 46 built-in patterns
 ### Types
 
 ```ts
-import type { ErrPulseEvent, ErrorGroup, StackFrame, Severity } from "@errpulse/core";
-import { ErrorSource, ErrorStatus, ErrorType } from "@errpulse/core";
+import type { ErrPulseEvent, ErrorGroup, StackFrame, Severity, LogEntry } from "@errpulse/core";
+import { ErrorSource, ErrorStatus, ErrorType, LogLevel } from "@errpulse/core";
 ```
 
 ### PII Sanitization
@@ -62,7 +62,7 @@ const safe = sanitizeHeaders({ Authorization: "Bearer xxx", "Content-Type": "app
 - **Error Fingerprinting** — SHA-256 based deduplication using error type, message, and top stack frames
 - **46 Built-in Error Patterns** — Plain-English explanations for common errors (ECONNREFUSED, CORS, React hooks, etc.)
 - **PII Sanitization** — Strips Authorization, Cookie, password, token, apiKey, and other sensitive fields
-- **Shared Types** — TypeScript types and enums used across all ErrPulse packages
+- **Shared Types** — TypeScript types and enums used across all ErrPulse packages (including `LogLevel` and `LogEntry` for console log capture)
 - **UUID Generation** — Event IDs and correlation IDs for request tracing
 
 ## Documentation

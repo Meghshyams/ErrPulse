@@ -39,6 +39,10 @@ console.log(`ErrPulse running at http://${config.host}:${config.port}`);
 | `GET`   | `/api/errors/:id`     | Error detail with event history |
 | `PATCH` | `/api/errors/:id`     | Update error status             |
 | `GET`   | `/api/requests`       | List HTTP requests              |
+| `POST`  | `/api/logs`           | Ingest a single log entry       |
+| `POST`  | `/api/logs/batch`     | Ingest multiple log entries     |
+| `GET`   | `/api/logs`           | List logs (filterable)          |
+| `POST`  | `/api/logs/clear`     | Clear log entries               |
 | `GET`   | `/api/stats`          | Dashboard overview stats        |
 | `GET`   | `/api/projects`       | List registered projects        |
 | `GET`   | `/api/health`         | Health check                    |
@@ -51,7 +55,7 @@ All list endpoints support `?projectId=<name>` to filter by project.
 
 - **SQLite + WAL** — Zero-setup database with Write-Ahead Logging for concurrent reads
 - **WebSocket** — Real-time error broadcasting to the dashboard
-- **Built-in Dashboard** — React + Tailwind CSS dashboard served at the root URL
+- **Built-in Dashboard** — React + Tailwind CSS dashboard with Errors, Requests, and Logs views
 - **Error Fingerprinting** — SHA-256 deduplication via `@errpulse/core`
 - **PII Sanitization** — Sensitive fields stripped before storage
 - **Multi-project** — Filter all data by `projectId`
