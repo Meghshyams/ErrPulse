@@ -13,6 +13,10 @@ export const MAX_MESSAGE_LENGTH = 2048;
 export const MAX_STACK_FRAMES = 50;
 export const BATCH_SIZE = 10;
 export const BATCH_INTERVAL_MS = 100;
+export const LOGS_ENDPOINT = "/api/logs";
+export const LOG_BATCH_SIZE = 20;
+export const LOG_BATCH_INTERVAL_MS = 500;
+
 export const SENSITIVE_HEADERS = [
   "authorization",
   "cookie",

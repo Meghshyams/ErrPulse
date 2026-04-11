@@ -26,8 +26,8 @@ export async function postJSON<T>(url: string, body?: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function clearAllLogs(): Promise<{ success: boolean }> {
-  return postJSON<{ success: boolean }>("/api/clear");
+export async function clearAllLogs(projectId?: string | null): Promise<{ success: boolean }> {
+  return postJSON<{ success: boolean }>("/api/clear", projectId ? { projectId } : undefined);
 }
 
 export async function fetchTrends(

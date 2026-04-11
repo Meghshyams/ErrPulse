@@ -5,6 +5,7 @@ import { enqueueEvent, flushAll } from "./client.js";
 import { installUncaughtExceptionHandler } from "./instruments/uncaught-exception.js";
 import { installUnhandledRejectionHandler } from "./instruments/unhandled-rejection.js";
 import { installConsoleErrorInterceptor } from "./instruments/console-error.js";
+import { installConsoleLogInterceptor } from "./instruments/console-log.js";
 import { installMemoryMonitor } from "./instruments/memory-monitor.js";
 import { parseStack } from "./helpers/stack-parser.js";
 import { getEnvironment } from "./helpers/environment.js";
@@ -34,6 +35,9 @@ export function init(options?: Partial<NodeSDKConfig>): void {
   }
   if (config.captureConsoleErrors) {
     cleanups.push(installConsoleErrorInterceptor());
+  }
+  if (config.captureConsoleLogs) {
+    cleanups.push(installConsoleLogInterceptor());
   }
   if (config.monitorMemory) {
     cleanups.push(installMemoryMonitor());

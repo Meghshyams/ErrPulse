@@ -8,6 +8,7 @@ export interface NodeSDKConfig {
   sampleRate: number;
   beforeSend?: (event: ErrPulseEvent) => ErrPulseEvent | null;
   captureConsoleErrors: boolean;
+  captureConsoleLogs: boolean;
   captureUncaughtExceptions: boolean;
   captureUnhandledRejections: boolean;
   monitorMemory: boolean;
@@ -20,6 +21,7 @@ const defaultConfig: NodeSDKConfig = {
   enabled: true,
   sampleRate: 1.0,
   captureConsoleErrors: true,
+  captureConsoleLogs: false,
   captureUncaughtExceptions: true,
   captureUnhandledRejections: true,
   monitorMemory: true,

@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from "react";
-import { setEndpoint, setProjectId, flushWithBeacon } from "./client.js";
+import { setEndpoint, setProjectId, flushWithBeacon, flushLogsWithBeacon } from "./client.js";
 import { installGlobalErrorHandler } from "./instruments/global-errors.js";
 import { installUnhandledRejectionHandler } from "./instruments/unhandled-rejections.js";
 import { installFetchInterceptor } from "./instruments/fetch-interceptor.js";
 import { installXHRInterceptor } from "./instruments/xhr-interceptor.js";
 import { installConsoleInterceptor } from "./instruments/console-interceptor.js";
+import { installConsoleLogInterceptor } from "./instruments/console-log-interceptor.js";
 import { installResourceErrorHandler } from "./instruments/resource-errors.js";
 import { ErrPulseErrorBoundary } from "./components/ErrorBoundary.js";
 
@@ -13,6 +14,7 @@ interface ErrPulseProviderProps {
   projectId?: string;
   children: React.ReactNode;
   captureConsoleErrors?: boolean;
+  captureConsoleLogs?: boolean;
   captureFetch?: boolean;
   captureXHR?: boolean;
   captureResourceErrors?: boolean;
@@ -24,6 +26,7 @@ export function ErrPulseProvider({
   projectId,
   children,
   captureConsoleErrors = true,
+  captureConsoleLogs = false,
   captureFetch = true,
   captureXHR = true,
   captureResourceErrors = true,
@@ -46,10 +49,14 @@ export function ErrPulseProvider({
     if (captureFetch) cleanups.push(installFetchInterceptor());
     if (captureXHR) cleanups.push(installXHRInterceptor());
     if (captureConsoleErrors) cleanups.push(installConsoleInterceptor());
+    if (captureConsoleLogs) cleanups.push(installConsoleLogInterceptor());
     if (captureResourceErrors) cleanups.push(installResourceErrorHandler());
 
     // Flush on page unload
-    const handleUnload = () => flushWithBeacon();
+    const handleUnload = () => {
+      flushWithBeacon();
+      flushLogsWithBeacon();
+    };
     window.addEventListener("beforeunload", handleUnload);
 
     return () => {
@@ -57,7 +64,14 @@ export function ErrPulseProvider({
       window.removeEventListener("beforeunload", handleUnload);
       initialized.current = false;
     };
-  }, [endpoint, captureConsoleErrors, captureFetch, captureXHR, captureResourceErrors]);
+  }, [
+    endpoint,
+    captureConsoleErrors,
+    captureConsoleLogs,
+    captureFetch,
+    captureXHR,
+    captureResourceErrors,
+  ]);
 
   return <ErrPulseErrorBoundary fallback={errorBoundaryFallback}>{children}</ErrPulseErrorBoundary>;
 }

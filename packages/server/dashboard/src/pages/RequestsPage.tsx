@@ -283,7 +283,8 @@ export function RequestsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [clearing, setClearing] = useState(false);
-  const { selectedProjectId } = useProject();
+  const { selectedProjectId, projects } = useProject();
+  const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   const load = useCallback(async () => {
     try {
@@ -319,14 +320,14 @@ export function RequestsPage() {
   const handleClearAll = useCallback(async () => {
     setClearing(true);
     try {
-      await clearAllLogs();
+      await clearAllLogs(selectedProjectId);
       load();
     } catch {
       // Silently fail
     }
     setClearing(false);
     setShowClearConfirm(false);
-  }, [load]);
+  }, [load, selectedProjectId]);
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-4 md:space-y-5">
@@ -357,10 +358,15 @@ export function RequestsPage() {
                 <Trash2 className="w-5 h-5 text-destructive" />
               </div>
               <div>
-                <h3 className="text-[15px] font-semibold">Clear all logs?</h3>
+                <h3 className="text-[15px] font-semibold">
+                  {selectedProject
+                    ? `Clear logs for "${selectedProject.name}"?`
+                    : "Clear all logs?"}
+                </h3>
                 <p className="text-[12px] text-muted-foreground mt-0.5">
-                  This will permanently delete all errors and requests. This action cannot be
-                  undone.
+                  {selectedProject
+                    ? `This will permanently delete all errors and requests for "${selectedProject.name}". This action cannot be undone.`
+                    : "This will permanently delete all errors and requests across all projects. This action cannot be undone."}
                 </p>
               </div>
             </div>

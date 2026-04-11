@@ -8,6 +8,7 @@ import { EmptyState } from "../components/EmptyState";
 import { Sparkline } from "../components/Sparkline";
 import { TimeRangeSelector } from "../components/TimeRangeSelector";
 import { fetchTrends, clearAllLogs } from "../lib/api";
+import { useProject } from "../context/ProjectContext";
 
 const STATUS_OPTIONS = ["all", "unresolved", "acknowledged", "resolved", "ignored"];
 const SOURCE_OPTIONS = ["all", "backend", "frontend"];
@@ -186,6 +187,8 @@ export function ErrorsPage() {
   const [trends, setTrends] = useState<Record<string, number[]>>({});
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const { selectedProjectId, projects } = useProject();
+  const selectedProject = projects.find((p) => p.id === selectedProjectId);
   const searchRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -229,7 +232,7 @@ export function ErrorsPage() {
   const handleClearAll = useCallback(async () => {
     setClearing(true);
     try {
-      await clearAllLogs();
+      await clearAllLogs(selectedProjectId);
       reload();
       setTrends({});
     } catch {
@@ -237,7 +240,7 @@ export function ErrorsPage() {
     }
     setClearing(false);
     setShowClearConfirm(false);
-  }, [reload]);
+  }, [reload, selectedProjectId]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -338,10 +341,15 @@ export function ErrorsPage() {
                 <Trash2 className="w-5 h-5 text-destructive" />
               </div>
               <div>
-                <h3 className="text-[15px] font-semibold">Clear all logs?</h3>
+                <h3 className="text-[15px] font-semibold">
+                  {selectedProject
+                    ? `Clear logs for "${selectedProject.name}"?`
+                    : "Clear all logs?"}
+                </h3>
                 <p className="text-[12px] text-muted-foreground mt-0.5">
-                  This will permanently delete all errors and requests. This action cannot be
-                  undone.
+                  {selectedProject
+                    ? `This will permanently delete all errors and requests for "${selectedProject.name}". This action cannot be undone.`
+                    : "This will permanently delete all errors and requests across all projects. This action cannot be undone."}
                 </p>
               </div>
             </div>

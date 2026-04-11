@@ -1,4 +1,13 @@
-import { EVENTS_ENDPOINT, BATCH_SIZE, BATCH_INTERVAL_MS, type ErrPulseEvent } from "@errpulse/core";
+import {
+  EVENTS_ENDPOINT,
+  BATCH_SIZE,
+  BATCH_INTERVAL_MS,
+  LOGS_ENDPOINT,
+  LOG_BATCH_SIZE,
+  LOG_BATCH_INTERVAL_MS,
+  type ErrPulseEvent,
+  type LogEntry,
+} from "@errpulse/core";
 import { getConfig } from "./config.js";
 
 let buffer: ErrPulseEvent[] = [];
@@ -88,6 +97,12 @@ export async function flushAll(): Promise<void> {
     flushTimer = null;
   }
   await flush();
+
+  if (logFlushTimer) {
+    clearTimeout(logFlushTimer);
+    logFlushTimer = null;
+  }
+  await flushLogBuffer();
 }
 
 // Send a request log entry
@@ -123,5 +138,74 @@ export async function sendRequest(entry: {
     });
   } catch {
     // Silently fail
+  }
+}
+
+// --- Log buffer (separate from event buffer) ---
+
+let logBuffer: LogEntry[] = [];
+let logFlushTimer: ReturnType<typeof setTimeout> | null = null;
+let isFlushingLogs = false;
+
+async function sendLogBatch(logs: LogEntry[]): Promise<void> {
+  const config = getConfig();
+  if (!config.enabled || logs.length === 0) return;
+
+  const url =
+    logs.length === 1
+      ? `${config.serverUrl}${LOGS_ENDPOINT}`
+      : `${config.serverUrl}${LOGS_ENDPOINT}/batch`;
+  const body = logs.length === 1 ? logs[0] : logs;
+
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch {
+    // Silently fail
+  }
+}
+
+function scheduleLogFlush(): void {
+  if (logFlushTimer) return;
+  logFlushTimer = setTimeout(() => {
+    logFlushTimer = null;
+    flushLogBuffer();
+  }, LOG_BATCH_INTERVAL_MS);
+}
+
+async function flushLogBuffer(): Promise<void> {
+  if (isFlushingLogs || logBuffer.length === 0) return;
+  isFlushingLogs = true;
+
+  const batch = logBuffer.splice(0);
+  await sendLogBatch(batch);
+
+  isFlushingLogs = false;
+
+  if (logBuffer.length > 0) {
+    scheduleLogFlush();
+  }
+}
+
+export function enqueueLog(entry: LogEntry): void {
+  const config = getConfig();
+  if (!config.enabled) return;
+
+  if (config.sampleRate < 1 && Math.random() > config.sampleRate) return;
+
+  if (config.projectId && !entry.projectId) {
+    entry.projectId = config.projectId;
+  }
+
+  logBuffer.push(entry);
+
+  if (logBuffer.length >= LOG_BATCH_SIZE) {
+    flushLogBuffer();
+  } else {
+    scheduleLogFlush();
   }
 }

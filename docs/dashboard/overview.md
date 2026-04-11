@@ -130,6 +130,52 @@ Request and response bodies are capped at 16 KB to avoid performance overhead. B
 
 The detail panel fetches data lazily — it only loads the full request details (headers, body) when you expand a row, keeping the initial page load fast.
 
+## Logs Page
+
+A dedicated section for viewing `console.log`, `console.warn`, `console.info`, and `console.debug` output captured from your application. Logs are separate from errors — they provide debugging and observability context without cluttering the error views.
+
+### Filters
+
+- **Level** — All, Log, Info, Warn, Debug
+- **Source** — All, Frontend, Backend
+- **Search** — full-text search on log messages
+
+### Log List
+
+Each row shows:
+
+- Level badge (color-coded: log=slate, info=blue, warn=amber, debug=purple)
+- Log message (monospace, truncated)
+- Source badge (frontend/backend)
+- Relative timestamp
+
+### Expandable Detail
+
+Click any log row to expand and see:
+
+- Full message text
+- Environment info (runtime, browser/Node version, URL)
+- Correlation ID (links to related requests/errors)
+- Extra metadata
+
+### Clear Logs
+
+A "Clear Logs" button with confirmation dialog allows clearing all logs, or only logs for the currently selected project.
+
+### Enabling Log Capture
+
+Log capture is opt-in in both SDKs to avoid high-volume noise:
+
+```ts
+// Node.js
+init({ captureConsoleLogs: true });
+
+// React
+<ErrPulseProvider endpoint="..." captureConsoleLogs={true}>
+```
+
+Logs are batched with a larger buffer (20 entries) and slower flush interval (500ms) compared to error events, to minimize network overhead from high-volume logging.
+
 ## Responsive Design
 
 The dashboard is fully responsive and works on mobile devices:
@@ -177,5 +223,6 @@ The dashboard connects to the ErrPulse server via WebSocket (`ws://localhost:380
 - A new event is added to an existing error
 - An error's status changes
 - A new HTTP request is logged
+- A new console log is captured
 
 No polling — all updates are pushed in real time.
