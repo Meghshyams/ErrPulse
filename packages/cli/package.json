@@ -1,6 +1,6 @@
 {
   "name": "errpulse",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "ErrPulse — the error monitoring tool that runs with one command",
   "license": "MIT",
   "author": "Meghshyam Sonar",

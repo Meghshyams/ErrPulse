@@ -1,5 +1,13 @@
 # @errpulse/server
 
+## 0.5.1
+
+### Patch Changes
+
+- cba6030: chore: publish updated READMEs and keywords to npm
+- Updated dependencies [cba6030]
+  - @errpulse/core@0.5.1
+
 ## 0.5.0
 
 ### Minor Changes

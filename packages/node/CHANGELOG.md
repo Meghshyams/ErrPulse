@@ -1,5 +1,11 @@
 # @errpulse/node
 
+## 0.5.1
+
+### Patch Changes
+
+- cba6030: chore: publish updated READMEs and keywords to npm
+
 ## 0.5.0
 
 ### Minor Changes
