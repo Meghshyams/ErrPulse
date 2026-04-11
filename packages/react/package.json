@@ -22,7 +22,14 @@
     "devtools",
     "console-log",
     "fetch-error",
-    "react-error-boundary"
+    "react-error-boundary",
+    "sentry-alternative",
+    "observability",
+    "logging",
+    "error-reporting",
+    "xhr-interceptor",
+    "fetch-interceptor",
+    "correlation-id"
   ],
   "publishConfig": {
     "access": "public"

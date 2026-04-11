@@ -23,7 +23,14 @@
     "middleware",
     "uncaught-exception",
     "console-log",
-    "devtools"
+    "devtools",
+    "sentry-alternative",
+    "observability",
+    "logging",
+    "apm",
+    "error-reporting",
+    "local-development",
+    "request-tracking"
   ],
   "publishConfig": {
     "access": "public"
