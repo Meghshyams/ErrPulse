@@ -14,9 +14,6 @@ const { Layout } = DefaultTheme;
     <template #home-hero-info-after>
       <HeroImage />
     </template>
-    <template #home-features-after>
-      <HomeShowcase />
-    </template>
   </Layout>
 </template>
 
