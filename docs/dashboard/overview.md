@@ -226,3 +226,18 @@ The dashboard connects to the ErrPulse server via WebSocket (`ws://localhost:380
 - A new console log is captured
 
 No polling — all updates are pushed in real time.
+
+## DevTools Widget
+
+In addition to the full dashboard, ErrPulse provides a floating in-app debug panel that lives directly inside your application. See [DevTools Widget](/guide/devtools) for full documentation.
+
+```tsx
+import { ErrPulseProvider, ErrPulseDevTools } from "@errpulse/react";
+
+<ErrPulseProvider endpoint="http://localhost:3800">
+  <App />
+  <ErrPulseDevTools />
+</ErrPulseProvider>;
+```
+
+The widget provides Errors, Console, and Network tabs with full payload inspection — use it for quick debugging without switching to the dashboard.

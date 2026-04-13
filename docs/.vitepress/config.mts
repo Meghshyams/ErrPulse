@@ -90,6 +90,7 @@ export default defineConfig({
           { text: "Getting Started", link: "/guide/getting-started" },
           { text: "Why ErrPulse?", link: "/guide/why-errpulse" },
           { text: "How It Works", link: "/guide/how-it-works" },
+          { text: "DevTools Widget", link: "/guide/devtools" },
         ],
       },
       {
