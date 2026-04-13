@@ -1,8 +1,6 @@
 <script setup>
-import { useData } from "vitepress";
 import { ref, onMounted } from "vue";
 
-const { page } = useData();
 const visible = ref(false);
 const activeTab = ref("dashboard");
 
@@ -14,11 +12,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    v-if="page.relativePath === 'index.md'"
-    class="ep-hero-preview"
-    :class="{ 'ep-visible': visible }"
-  >
+  <div class="ep-hero-preview" :class="{ 'ep-visible': visible }">
     <div class="ep-preview-tabs">
       <button
         class="ep-preview-tab"
@@ -69,13 +63,13 @@ onMounted(() => {
 .ep-preview-tabs {
   display: flex;
   gap: 4px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .ep-preview-tab {
   font-size: 12px;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 6px;
   border: 1px solid var(--vp-c-border);
   background: transparent;

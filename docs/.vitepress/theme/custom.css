@@ -63,39 +63,7 @@
   --vp-c-tip-3: rgba(244, 63, 94, 0.08);
 }
 
-/* Hero section — side-by-side layout */
-.VPHero .container {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 48px;
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-.VPHero .main {
-  flex: 1;
-  min-width: 320px;
-  text-align: left !important;
-}
-
-.VPHero .main .name,
-.VPHero .main .text,
-.VPHero .main .tagline {
-  max-width: 100% !important;
-}
-
-.VPHero .main .actions {
-  justify-content: flex-start !important;
-}
-
-/* The carousel slot sits beside the hero text */
-.VPHero .main + .ep-hero-carousel,
-.VPHero .ep-hero-carousel {
-  flex: 1.2;
-  min-width: 0;
-}
-
+/* Hero section */
 .VPHero .name {
   background: linear-gradient(135deg, #f43f5e 0%, #ff6b8a 50%, #f43f5e 100%);
   background-clip: text;
@@ -103,19 +71,15 @@
   -webkit-text-fill-color: transparent;
 }
 
-@media (max-width: 960px) {
-  .VPHero .container {
-    flex-direction: column !important;
-    gap: 24px;
-  }
+/* Override fixed hero image size so the GIF preview can be full width */
+.VPHero.has-image .image-container {
+  width: 100% !important;
+  height: auto !important;
+  transform: none !important;
+}
 
-  .VPHero .main {
-    text-align: center !important;
-  }
-
-  .VPHero .main .actions {
-    justify-content: center !important;
-  }
+.VPHero .image-bg {
+  display: none !important;
 }
 
 /* Hero brand button */
