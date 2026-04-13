@@ -1,6 +1,6 @@
 {
   "name": "@errpulse/node",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "ErrPulse Node.js backend SDK — catch every backend error automatically",
   "license": "MIT",
   "author": "Meghshyam Sonar",
