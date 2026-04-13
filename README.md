@@ -15,6 +15,7 @@
   <a href="#what-gets-caught">What Gets Caught</a> &bull;
   <a href="#sdks">SDKs</a> &bull;
   <a href="#dashboard">Dashboard</a> &bull;
+  <a href="#devtools-widget">DevTools Widget</a> &bull;
   <a href="#multi-project">Multi-Project</a> &bull;
   <a href="#api">API</a>
 </p>
@@ -24,6 +25,10 @@
   <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg" alt="Node >= 18" />
   <img src="https://img.shields.io/badge/TypeScript-5.7-blue.svg" alt="TypeScript" />
   <img src="https://img.shields.io/badge/SQLite-zero--setup-orange.svg" alt="SQLite" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/dashboard.gif" alt="ErrPulse Dashboard Demo" width="800" />
 </p>
 
 ---
@@ -80,12 +85,13 @@ npm install @errpulse/react
 ```
 
 ```tsx
-import { ErrPulseProvider } from "@errpulse/react";
+import { ErrPulseProvider, ErrPulseDevTools } from "@errpulse/react";
 
 function App() {
   return (
     <ErrPulseProvider endpoint="http://localhost:3800" projectId="my-web-app">
       <YourApp />
+      <ErrPulseDevTools /> {/* Floating in-app debug panel */}
     </ErrPulseProvider>
   );
 }
@@ -94,6 +100,8 @@ function App() {
 ### 4. Open the dashboard
 
 Navigate to [http://localhost:3800](http://localhost:3800) — see all errors in real-time.
+
+Or just click the floating ErrPulse icon in your app to see errors, console logs, and network requests without leaving your app.
 
 ---
 
@@ -185,7 +193,7 @@ export const GET = withErrPulse(async (req) => {
 ### `@errpulse/react` — Frontend SDK
 
 ```tsx
-import { ErrPulseProvider } from "@errpulse/react";
+import { ErrPulseProvider, ErrPulseDevTools } from "@errpulse/react";
 
 <ErrPulseProvider
   endpoint="http://localhost:3800"
@@ -198,6 +206,7 @@ import { ErrPulseProvider } from "@errpulse/react";
   errorBoundaryFallback={<div>Something went wrong</div>}
 >
   <App />
+  <ErrPulseDevTools /> {/* Optional: in-app floating debug panel */}
 </ErrPulseProvider>;
 ```
 
@@ -238,6 +247,60 @@ The dashboard runs at `http://localhost:3800` and provides:
 
 Fully responsive — works on desktop and mobile. Built with React + Tailwind CSS + WebSocket for real-time updates.
 
+<p align="center">
+  <img src="docs/assets/dashboard.gif" alt="ErrPulse Dashboard" width="800" />
+</p>
+
+---
+
+## DevTools Widget
+
+A floating in-app debug panel — like React DevTools, but for errors, console logs, and network requests. No need to switch to a separate dashboard.
+
+<p align="center">
+  <img src="docs/assets/devtools.gif" alt="ErrPulse DevTools Widget" width="600" />
+</p>
+
+```tsx
+import { ErrPulseProvider, ErrPulseDevTools } from "@errpulse/react";
+
+function App() {
+  return (
+    <ErrPulseProvider endpoint="http://localhost:3800" projectId="my-app">
+      <YourApp />
+      <ErrPulseDevTools
+        position="bottom-right" // bottom-right | bottom-left | top-right | top-left
+        initialOpen={false} // Start open or closed
+        enabled={true} // true | false | undefined (auto: dev only)
+      />
+    </ErrPulseProvider>
+  );
+}
+```
+
+### What you get
+
+| Feature                 | Description                                                                                                                                                                      |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Errors tab**          | Every captured error with severity, type, timestamp. Click to expand — see full stack trace, page URL, request details, and server-provided plain-English explanations           |
+| **Console tab**         | Live `console.log`, `.warn`, `.info`, `.debug` output. Logs with objects show a collapsed preview — click to expand a syntax-highlighted JSON tree (like browser DevTools)       |
+| **Network tab**         | All HTTP requests with method, URL, status, duration. Click to expand — see request/response headers, request body, and full response payload as formatted JSON                  |
+| **Expandable panel**    | Click the expand button to go near-fullscreen for reading large payloads and stack traces                                                                                        |
+| **Draggable**           | Grab the floating icon and drag it anywhere. Position persists across page reloads                                                                                               |
+| **Keyboard shortcut**   | `Ctrl+Shift+E` toggles the panel                                                                                                                                                 |
+| **Server enrichment**   | When the ErrPulse server is running, errors are enriched with grouped occurrence counts and AI-generated explanations. Works without the server too — local capture always works |
+| **Shadow DOM**          | Fully isolated styles — no CSS leakage to or from your app                                                                                                                       |
+| **Dev-only by default** | Hidden in production unless you set `enabled={true}`                                                                                                                             |
+
+### Hybrid architecture
+
+The DevTools widget uses a **hybrid data approach**:
+
+- **Local capture** — errors, logs, and requests appear instantly in the widget, even without the ErrPulse server running. Great for quick debugging.
+- **Server enrichment** — when the server is running (`npx errpulse`), the widget fetches grouped error data with occurrence counts and plain-English explanations via REST API, and subscribes to real-time updates via WebSocket.
+
+The footer shows connection status: green dot = connected to server, orange dot = server offline (local-only mode).
+
 ---
 
 ## Multi-Project
@@ -273,21 +336,21 @@ Your Backend (Express/Next)       Your Frontend (React)
 | - console.error           |     | - React component crashes |
 | - console.log/warn/info   |     | - console.log/warn/info   |
 | - memory warnings         |     | - resource load failures  |
-+-------------+-------------+     +-------------+-------------+
-              |                                 |
-              |  <-- correlation ID header -->  |
-              |                                 |
-              +---- POST /api/events -----------+
-                       (batched, 100ms)
-                             |
-                             v
-              +-----------------------------+
-              |      ErrPulse Server        |
-              |      localhost:3800         |
-              |                             |
-              |  - REST API                 |
-              |  - Ingest engine            |
-              |    (fingerprint, group,     |
++-------------+-------------+     +------+--------+-----------+
+              |                           |        |
+              |  <-- correlation ID -->   |        |
+              |                           |        v
+              +---- POST /api/events -----+   +------------------+
+                       (batched, 100ms)       | DevTools Widget  |
+                             |                | (in-app panel)   |
+                             v                |                  |
+              +-----------------------------+ | - Errors tab     |
+              |      ErrPulse Server        | | - Console tab    |
+              |      localhost:3800         +-+ - Network tab    |
+              |                             | | - JSON tree view |
+              |  - REST API                 | | - Expand/drag    |
+              |  - Ingest engine            | | - Shadow DOM     |
+              |    (fingerprint, group,     | +------------------+
               |     explain, store)         |
               |  - SQLite + WAL             |
               |    (~/.errpulse/errpulse.db)|

@@ -73,12 +73,13 @@ npm install @errpulse/react
 Wrap your app with the `ErrPulseProvider`:
 
 ```tsx
-import { ErrPulseProvider } from "@errpulse/react";
+import { ErrPulseProvider, ErrPulseDevTools } from "@errpulse/react";
 
 function App() {
   return (
     <ErrPulseProvider endpoint="http://localhost:3800">
       <YourApp />
+      <ErrPulseDevTools /> {/* Optional: floating in-app debug panel */}
     </ErrPulseProvider>
   );
 }
@@ -107,5 +108,5 @@ Open [http://localhost:3800](http://localhost:3800) in your browser. You'll see:
 
 - [Why ErrPulse?](/guide/why-errpulse) — See how ErrPulse compares to Sentry and LogRocket
 - [Node.js SDK Reference](/sdks/node) — Full configuration and API reference
-- [React SDK Reference](/sdks/react) — All provider props and hooks
+- [React SDK Reference](/sdks/react) — All provider props, hooks, and DevTools widget
 - [API Reference](/api/reference) — REST endpoints and WebSocket protocol

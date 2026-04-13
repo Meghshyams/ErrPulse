@@ -28,6 +28,23 @@ function App() {
 
 That's it. Errors, failed requests, and React crashes are captured automatically.
 
+### Add the DevTools Widget (optional)
+
+A floating in-app debug panel to see errors, console logs, and network requests without leaving your app:
+
+```tsx
+import { ErrPulseProvider, ErrPulseDevTools } from "@errpulse/react";
+
+function App() {
+  return (
+    <ErrPulseProvider endpoint="http://localhost:3800" projectId="my-web-app">
+      <YourApp />
+      <ErrPulseDevTools />
+    </ErrPulseProvider>
+  );
+}
+```
+
 ## What Gets Captured
 
 | Error Type                    | How                                   |
@@ -128,6 +145,27 @@ The fetch interceptor captures full request/response details:
 ## Page Unload
 
 The SDK uses `navigator.sendBeacon()` on page unload to flush any remaining buffered events and logs, ensuring nothing is lost when the user navigates away.
+
+## DevTools Widget
+
+`<ErrPulseDevTools />` is a floating in-app debug panel — like React DevTools, but for errors, console logs, and network requests.
+
+| Prop          | Type                                                           | Default          | Description                               |
+| ------------- | -------------------------------------------------------------- | ---------------- | ----------------------------------------- |
+| `position`    | `"bottom-right" \| "bottom-left" \| "top-right" \| "top-left"` | `"bottom-right"` | Initial corner position (draggable after) |
+| `initialOpen` | `boolean`                                                      | `false`          | Start with panel open                     |
+| `enabled`     | `boolean`                                                      | `undefined`      | Force on/off. Default: auto (dev only)    |
+
+**Features:**
+
+- **Errors tab** — every captured error with severity, stack trace, and server-provided explanations
+- **Console tab** — live console output with click-to-expand JSON tree viewer
+- **Network tab** — all HTTP requests with full request/response headers and payloads
+- **Expandable** — maximize to near-fullscreen for large payloads
+- **Draggable** — drag the icon anywhere, position saved to localStorage
+- **Keyboard shortcut** — `Ctrl+Shift+E` to toggle
+- **Shadow DOM** — fully isolated styles, no CSS leakage
+- **Hybrid data** — works locally without the server, enriched with explanations when connected
 
 ## Documentation
 
