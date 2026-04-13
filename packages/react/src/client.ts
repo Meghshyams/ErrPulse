@@ -14,6 +14,73 @@ let projectId = "";
 let buffer: ErrPulseEvent[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
+// --- DevTools subscription system ---
+
+export type DevToolsEventType = "error" | "log" | "request";
+
+export interface DevToolsSubscriber {
+  onError?: (event: ErrPulseEvent) => void;
+  onLog?: (entry: LogEntry) => void;
+  onRequest?: (entry: RequestLogData) => void;
+}
+
+export interface RequestLogData {
+  method: string;
+  url: string;
+  statusCode: number;
+  duration: number;
+  timestamp: string;
+  correlationId?: string;
+  headers?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  requestBody?: string;
+  responseBody?: string;
+  source?: string;
+}
+
+const subscribers = new Set<DevToolsSubscriber>();
+const eventHistory: ErrPulseEvent[] = [];
+const logHistory: LogEntry[] = [];
+const requestHistory: RequestLogData[] = [];
+const MAX_HISTORY = 200;
+
+function notifyError(event: ErrPulseEvent): void {
+  eventHistory.push(event);
+  if (eventHistory.length > MAX_HISTORY) eventHistory.shift();
+  for (const sub of subscribers) sub.onError?.(event);
+}
+
+function notifyLog(entry: LogEntry): void {
+  logHistory.push(entry);
+  if (logHistory.length > MAX_HISTORY) logHistory.shift();
+  for (const sub of subscribers) sub.onLog?.(entry);
+}
+
+function notifyRequest(entry: RequestLogData): void {
+  requestHistory.push(entry);
+  if (requestHistory.length > MAX_HISTORY) requestHistory.shift();
+  for (const sub of subscribers) sub.onRequest?.(entry);
+}
+
+export function subscribe(subscriber: DevToolsSubscriber): () => void {
+  subscribers.add(subscriber);
+  return () => {
+    subscribers.delete(subscriber);
+  };
+}
+
+export function getEventHistory(): ErrPulseEvent[] {
+  return eventHistory.slice();
+}
+
+export function getLogHistory(): LogEntry[] {
+  return logHistory.slice();
+}
+
+export function getRequestHistory(): RequestLogData[] {
+  return requestHistory.slice();
+}
+
 export function setEndpoint(url: string): void {
   endpoint = url.replace(/\/$/, "");
 }
@@ -68,10 +135,11 @@ function flush(): void {
 }
 
 export function enqueueEvent(event: ErrPulseEvent): void {
-  if (!endpoint) return;
   if (projectId && !event.projectId) {
     event.projectId = projectId;
   }
+  notifyError(event);
+  if (!endpoint) return;
   buffer.push(event);
 
   if (buffer.length >= BATCH_SIZE) {
@@ -94,6 +162,7 @@ export function sendRequestLog(entry: {
   responseBody?: string;
   source?: string;
 }): void {
+  notifyRequest(entry as RequestLogData);
   if (!endpoint) return;
   try {
     const payload = { ...entry, projectId: projectId || undefined };
@@ -168,10 +237,11 @@ function flushLogs(): void {
 }
 
 export function enqueueLog(entry: LogEntry): void {
-  if (!endpoint) return;
   if (projectId && !entry.projectId) {
     entry.projectId = projectId;
   }
+  notifyLog(entry);
+  if (!endpoint) return;
   logBuffer.push(entry);
 
   if (logBuffer.length >= LOG_BATCH_SIZE) {

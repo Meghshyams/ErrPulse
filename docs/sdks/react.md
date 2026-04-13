@@ -166,3 +166,52 @@ This happens automatically when both `@errpulse/node` and `@errpulse/react` are 
 ## Page Unload
 
 The SDK uses `navigator.sendBeacon()` on page unload to flush any remaining buffered events. This ensures errors captured right before the user navigates away are still delivered to the server.
+
+## DevTools Widget
+
+`<ErrPulseDevTools />` is a floating in-app debug panel that lets you see errors, console logs, and network requests without leaving your app or opening browser DevTools.
+
+```tsx
+import { ErrPulseProvider, ErrPulseDevTools } from "@errpulse/react";
+
+function App() {
+  return (
+    <ErrPulseProvider endpoint="http://localhost:3800" projectId="my-app">
+      <YourApp />
+      <ErrPulseDevTools />
+    </ErrPulseProvider>
+  );
+}
+```
+
+### Props
+
+| Prop          | Type                                                           | Default          | Description                                                         |
+| ------------- | -------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------- |
+| `position`    | `"bottom-right" \| "bottom-left" \| "top-right" \| "top-left"` | `"bottom-right"` | Initial corner position                                             |
+| `initialOpen` | `boolean`                                                      | `false`          | Start with panel open                                               |
+| `enabled`     | `boolean`                                                      | `undefined`      | Force on/off. Default: visible in development, hidden in production |
+
+### Features
+
+- **Errors tab** — every captured error with severity, type, timestamp. Click to expand for full stack trace, page URL, request details, and server-provided plain-English explanations
+- **Console tab** — live `console.log`, `.warn`, `.info`, `.debug` output. Logs containing objects show a collapsed preview — click to expand a syntax-highlighted JSON tree viewer
+- **Network tab** — all HTTP requests with method, URL, status, duration. Click to expand for full request/response headers, request body, and response payload as formatted JSON
+- **Expandable panel** — click the expand button to go near-fullscreen for reading large payloads and stack traces
+- **Draggable** — grab the floating icon and drag it anywhere on screen. Position persists across page reloads via localStorage
+- **Keyboard shortcut** — `Ctrl+Shift+E` toggles the panel
+- **Shadow DOM** — fully isolated styles, no CSS leakage to or from your app
+- **Dev-only by default** — automatically hidden in production unless `enabled={true}`
+
+### Hybrid Architecture
+
+The DevTools widget uses a hybrid data approach:
+
+- **Local capture** — errors, logs, and network requests appear instantly, even without the ErrPulse server. The widget subscribes to the SDK's internal event stream.
+- **Server enrichment** — when the server is running, the widget fetches grouped error data with occurrence counts and plain-English explanations via REST API, and subscribes to real-time updates via WebSocket.
+
+The footer shows connection status: green dot when connected to the server, orange dot when running in local-only mode.
+
+::: tip
+The DevTools widget works great alongside the full dashboard. Use the widget for quick in-app debugging, and the dashboard for deeper analysis, trends, and multi-project monitoring.
+:::
