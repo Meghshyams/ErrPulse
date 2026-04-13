@@ -14,20 +14,21 @@ Your Backend (Express/Next)       Your Frontend (React)
 | - console.error           |     | - React component crashes |
 | - console.log/warn/info   |     | - console.log/warn/info   |
 | - memory warnings         |     | - resource load failures  |
-+-------------+-------------+     +-------------+-------------+
-              |                                 |
-              |  <-- correlation ID header -->  |
-              |                                 |
-              +---- POST /api/events -----------+
-                       (batched, 100ms)
-                             |
-                             v
-              +-----------------------------+
-              |      ErrPulse Server        |
-              |      localhost:3800         |
-              |                             |
-              |  - REST API                 |
-              |  - Ingest engine            |
++-------------+-------------+     +------+--------+-----------+
+              |                           |        |
+              |  <-- correlation ID -->   |        |
+              |                           |        v
+              +---- POST /api/events -----+   +------------------+
+                       (batched, 100ms)       | DevTools Widget  |
+                             |                | (in-app panel)   |
+                             v                |                  |
+              +-----------------------------+ | - Errors tab     |
+              |      ErrPulse Server        | | - Console tab    |
+              |      localhost:3800         +-+ - Network tab    |
+              |                             | | - JSON tree view |
+              |  - REST API                 | | - Expand/drag    |
+              |  - Ingest engine            | | - Shadow DOM     |
+              |                             | +------------------+
               |    (fingerprint, group,     |
               |     explain, store)         |
               |  - SQLite + WAL             |
