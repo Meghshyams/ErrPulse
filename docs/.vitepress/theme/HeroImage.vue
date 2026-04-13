@@ -4,6 +4,7 @@ import { ref, onMounted } from "vue";
 
 const { page } = useData();
 const visible = ref(false);
+const activeTab = ref("dashboard");
 
 onMounted(() => {
   setTimeout(() => {
@@ -15,25 +16,44 @@ onMounted(() => {
 <template>
   <div
     v-if="page.relativePath === 'index.md'"
-    class="ep-hero-carousel"
+    class="ep-hero-preview"
     :class="{ 'ep-visible': visible }"
   >
-    <div class="ep-carousel-track">
-      <div class="ep-carousel-card">
-        <div class="ep-card-label">Dashboard</div>
-        <img src="/assets/dashboard.gif" alt="ErrPulse Dashboard" loading="eager" />
-      </div>
-      <div class="ep-carousel-card">
-        <div class="ep-card-label">DevTools Widget</div>
-        <img src="/assets/devtools.gif" alt="ErrPulse DevTools" loading="eager" />
-      </div>
+    <div class="ep-preview-tabs">
+      <button
+        class="ep-preview-tab"
+        :class="{ active: activeTab === 'dashboard' }"
+        @click="activeTab = 'dashboard'"
+      >
+        Dashboard
+      </button>
+      <button
+        class="ep-preview-tab"
+        :class="{ active: activeTab === 'devtools' }"
+        @click="activeTab = 'devtools'"
+      >
+        DevTools Widget
+      </button>
+    </div>
+    <div class="ep-preview-window">
+      <img
+        v-show="activeTab === 'dashboard'"
+        src="/assets/dashboard.gif"
+        alt="ErrPulse Dashboard"
+        loading="eager"
+      />
+      <img
+        v-show="activeTab === 'devtools'"
+        src="/assets/devtools.gif"
+        alt="ErrPulse DevTools"
+        loading="eager"
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
-.ep-hero-carousel {
-  margin-top: 24px;
+.ep-hero-preview {
   opacity: 0;
   transform: translateY(12px);
   transition:
@@ -46,50 +66,45 @@ onMounted(() => {
   transform: translateY(0);
 }
 
-.ep-carousel-track {
+.ep-preview-tabs {
   display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 8px;
+  gap: 4px;
+  margin-bottom: 12px;
 }
 
-/* Hide scrollbar but keep scroll functionality */
-.ep-carousel-track::-webkit-scrollbar {
-  height: 0;
-}
-.ep-carousel-track {
-  scrollbar-width: none;
-}
-
-.ep-carousel-card {
-  flex: 0 0 min(560px, 80vw);
-  scroll-snap-align: start;
-}
-
-.ep-card-label {
-  font-size: 11px;
+.ep-preview-tab {
+  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #f43f5e;
-  margin-bottom: 8px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--vp-c-border);
+  background: transparent;
+  color: var(--vp-c-text-3);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
 }
 
-.ep-carousel-card img {
-  width: 100%;
+.ep-preview-tab:hover {
+  color: var(--vp-c-text-2);
+  border-color: var(--vp-c-text-3);
+}
+
+.ep-preview-tab.active {
+  background: #f43f5e;
+  border-color: #f43f5e;
+  color: #fff;
+}
+
+.ep-preview-window {
   border-radius: 10px;
   border: 1px solid var(--vp-c-border);
+  overflow: hidden;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-  display: block;
 }
 
-.ep-carousel-card img:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+.ep-preview-window img {
+  width: 100%;
+  display: block;
 }
 </style>
