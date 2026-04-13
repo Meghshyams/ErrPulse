@@ -2,9 +2,7 @@
 
 The ErrPulse DevTools widget is a floating in-app debug panel that lives directly inside your application. Think of it like React DevTools or Vue DevTools, but for errors, console logs, and network requests.
 
-<p align="center">
-  <img src="/ErrPulse/devtools.gif" alt="ErrPulse DevTools Widget" style="max-width: 600px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);" />
-</p>
+![ErrPulse DevTools Widget](../assets/devtools.gif)
 
 ## Quick Start
 

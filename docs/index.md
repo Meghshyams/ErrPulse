@@ -40,16 +40,12 @@ features:
 
 Real-time error monitoring with plain-English explanations, stack traces, HTTP request logs, and console output.
 
-<p align="center">
-  <img src="/ErrPulse/dashboard.gif" alt="ErrPulse Dashboard" style="max-width: 800px; width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);" />
-</p>
+![ErrPulse Dashboard](./assets/dashboard.gif)
 
 ## DevTools Widget
 
 A floating in-app debug panel — see errors, console logs, and API responses without leaving your app.
 
-<p align="center">
-  <img src="/ErrPulse/devtools.gif" alt="ErrPulse DevTools Widget" style="max-width: 600px; width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);" />
-</p>
+![ErrPulse DevTools Widget](./assets/devtools.gif)
 
 </div>
