@@ -21,21 +21,6 @@ onMounted(() => {
   >
     <div class="ep-showcase-item">
       <div class="ep-showcase-text">
-        <span class="ep-showcase-badge">Dashboard</span>
-        <h2>Real-time error monitoring</h2>
-        <p>
-          Health scores, error timelines, filterable error lists, plain-English explanations, full
-          stack traces, HTTP request logs, and console output — all updating live via WebSocket.
-        </p>
-        <a href="/ErrPulse/guide/getting-started" class="ep-showcase-link">Get started →</a>
-      </div>
-      <div class="ep-showcase-media">
-        <img src="/assets/dashboard.gif" alt="ErrPulse Dashboard" loading="lazy" />
-      </div>
-    </div>
-
-    <div class="ep-showcase-item ep-showcase-reverse">
-      <div class="ep-showcase-text">
         <span class="ep-showcase-badge">DevTools Widget</span>
         <h2>Debug without leaving your app</h2>
         <p>

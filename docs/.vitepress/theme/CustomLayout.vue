@@ -1,6 +1,7 @@
 <script setup>
 import DefaultTheme from "vitepress/theme";
 import HomeShowcase from "./HomeShowcase.vue";
+import HeroImage from "./HeroImage.vue";
 
 const { Layout } = DefaultTheme;
 </script>
@@ -9,6 +10,9 @@ const { Layout } = DefaultTheme;
   <Layout>
     <template #nav-bar-title-after>
       <span class="nav-brand-title">Err<span class="pulse">Pulse</span></span>
+    </template>
+    <template #home-hero-info-after>
+      <HeroImage />
     </template>
     <template #home-features-after>
       <HomeShowcase />
