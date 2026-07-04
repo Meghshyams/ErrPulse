@@ -145,7 +145,7 @@ Or just click the floating ErrPulse icon in your app to see errors, console logs
 | Memory warnings                | Periodic `process.memoryUsage()` check |
 | All HTTP requests              | Request handler middleware             |
 
-### Frontend (`@errpulse/react`)
+### Frontend (`@errpulse/vite` / `@errpulse/browser` / `@errpulse/react`)
 
 | Error Type                                | How                                       |
 | ----------------------------------------- | ----------------------------------------- |
@@ -223,6 +223,30 @@ export const GET = withErrPulse(async (req) => {
   return Response.json({ data: "hello" });
 });
 ```
+
+### `@errpulse/vite` — Vite Plugin (zero config)
+
+One line in `vite.config.ts` instruments any Vite app — React, Vue, Svelte, Solid, or vanilla. Dev-only by design: production builds contain no ErrPulse code, and `projectId` defaults to your app's `package.json` name.
+
+```ts
+import errpulse from "@errpulse/vite";
+
+export default defineConfig({
+  plugins: [errpulse()], // options: endpoint, projectId, capture* flags
+});
+```
+
+### `@errpulse/browser` — Framework-Agnostic Browser SDK
+
+The capture layer underneath the Vite plugin and the React SDK. Use it directly in any browser app:
+
+```ts
+import { init } from "@errpulse/browser";
+
+const teardown = init({ endpoint: "http://localhost:3800", projectId: "my-web-app" });
+```
+
+`init()` installs all interceptors (errors, rejections, fetch/XHR, console, resources), is idempotent, and returns a teardown function.
 
 ### `@errpulse/react` — Frontend SDK
 
@@ -315,17 +339,17 @@ function App() {
 
 ### What you get
 
-| Feature                 | Description                                                                                                                                                                      |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Errors tab**          | Every captured error with severity, type, timestamp. Click to expand — see full stack trace, page URL, request details, and server-provided plain-English explanations           |
-| **Console tab**         | Live `console.log`, `.warn`, `.info`, `.debug` output. Logs with objects show a collapsed preview — click to expand a syntax-highlighted JSON tree (like browser DevTools)       |
-| **Network tab**         | All HTTP requests with method, URL, status, duration. Click to expand — see request/response headers, request body, and full response payload as formatted JSON                  |
-| **Expandable panel**    | Click the expand button to go near-fullscreen for reading large payloads and stack traces                                                                                        |
-| **Draggable**           | Grab the floating icon and drag it anywhere. Position persists across page reloads                                                                                               |
-| **Keyboard shortcut**   | `Ctrl+Shift+E` toggles the panel                                                                                                                                                 |
-| **Server enrichment**   | When the ErrPulse server is running, errors are enriched with grouped occurrence counts and AI-generated explanations. Works without the server too — local capture always works |
-| **Shadow DOM**          | Fully isolated styles — no CSS leakage to or from your app                                                                                                                       |
-| **Dev-only by default** | Hidden in production unless you set `enabled={true}`                                                                                                                             |
+| Feature                 | Description                                                                                                                                                                       |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Errors tab**          | Every captured error with severity, type, timestamp. Click to expand — see full stack trace, page URL, request details, and server-provided plain-English explanations            |
+| **Console tab**         | Live `console.log`, `.warn`, `.info`, `.debug` output. Logs with objects show a collapsed preview — click to expand a syntax-highlighted JSON tree (like browser DevTools)        |
+| **Network tab**         | All HTTP requests with method, URL, status, duration. Click to expand — see request/response headers, request body, and full response payload as formatted JSON                   |
+| **Expandable panel**    | Click the expand button to go near-fullscreen for reading large payloads and stack traces                                                                                         |
+| **Draggable**           | Grab the floating icon and drag it anywhere. Position persists across page reloads                                                                                                |
+| **Keyboard shortcut**   | `Ctrl+Shift+E` toggles the panel                                                                                                                                                  |
+| **Server enrichment**   | When the ErrPulse server is running, errors are enriched with grouped occurrence counts and plain-English explanations. Works without the server too — local capture always works |
+| **Shadow DOM**          | Fully isolated styles — no CSS leakage to or from your app                                                                                                                        |
+| **Dev-only by default** | Hidden in production unless you set `enabled={true}`                                                                                                                              |
 
 ### Hybrid architecture
 
