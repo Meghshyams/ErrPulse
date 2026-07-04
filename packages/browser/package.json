@@ -1,6 +1,6 @@
 {
   "name": "@errpulse/browser",
-  "version": "0.5.1",
+  "version": "0.7.0",
   "description": "ErrPulse framework-agnostic browser SDK — catch every frontend error with one init() call",
   "license": "MIT",
   "author": "Meghshyam Sonar",

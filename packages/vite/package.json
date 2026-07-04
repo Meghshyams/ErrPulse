@@ -1,6 +1,6 @@
 {
   "name": "@errpulse/vite",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "description": "ErrPulse Vite plugin — zero-config error monitoring for any Vite app, one line in vite.config",
   "license": "MIT",
   "author": "Meghshyam Sonar",

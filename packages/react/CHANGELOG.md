@@ -1,5 +1,25 @@
 # @errpulse/react
 
+## 0.7.0
+
+### Minor Changes
+
+- f37c9b0: feat: zero-config Vite plugin + framework-agnostic browser SDK
+  - **New `@errpulse/browser`**: the frontend capture layer (fetch/XHR/console interceptors, global error handlers, batching client) extracted from `@errpulse/react` into a framework-agnostic package with a single `init(options)` entry point. Works in React, Vue, Svelte, Solid, or vanilla JS. `init()` returns a teardown function and is idempotent.
+  - **New `@errpulse/vite`**: one line in `vite.config.ts` — `plugins: [errpulse()]` — injects the browser SDK into `index.html` before any app code runs. No SDK install in the app, no provider wrapping. Dev-only by design (`apply: "serve"`): production builds contain zero ErrPulse code. `projectId` defaults to the app's package.json name; RegExp values in `correlationPropagationTargets` are supported.
+  - **`@errpulse/react`** now delegates capture to `@errpulse/browser` (new dependency). Public API is unchanged; the provider is a thin wrapper over `init()`.
+
+### Patch Changes
+
+- f37c9b0: fix: stop injecting the correlation header into third-party requests
+
+  The fetch and XHR interceptors previously added `X-ErrPulse-Correlation-ID` to every outgoing request. A custom header makes cross-origin requests non-simple, forcing a CORS preflight — third-party APIs that don't allow the header would fail requests that worked before ErrPulse was installed.
+
+  The header is now only attached to same-origin requests and local dev hosts (`localhost`, `127.0.0.1`, `[::1]`, `0.0.0.0`, `*.localhost`) by default. Use the new `correlationPropagationTargets` prop on `ErrPulseProvider` to propagate it to other backends you control (strings match as substrings, RegExps are tested against the full URL). All requests are still captured and logged either way — only the outgoing header is gated.
+
+- Updated dependencies [f37c9b0]
+  - @errpulse/browser@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes

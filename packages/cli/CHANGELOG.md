@@ -1,5 +1,34 @@
 # errpulse
 
+## 0.7.0
+
+### Minor Changes
+
+- f37c9b0: feat: MCP server — give AI coding agents eyes on your runtime errors
+
+  New `npx errpulse mcp` command starts an MCP (Model Context Protocol) server over stdio, letting Claude Code, Cursor, and other MCP-capable agents query ErrPulse directly:
+  - `get_recent_errors` — grouped errors with counts and plain-English explanations, filterable by project/severity/source/status/time/search
+  - `get_error_details` — stack traces, occurrences, and the linked HTTP request (with response body) for one error
+  - `get_failed_requests` — 4xx/5xx/network failures with truncated response bodies
+  - `get_console_logs` — captured console output from browser and Node
+  - `get_stats` — error rate and health overview
+  - `update_error_status` — mark errors resolved after fixing
+  - `clear_all_data` — wipe data before a reproduction run (flagged destructive)
+
+  Responses are context-window-friendly (capped stacks/bodies), and every tool returns an actionable hint when the ErrPulse server isn't running. Register with `claude mcp add errpulse -- npx errpulse mcp`.
+
+- f37c9b0: feat: stream errors to the terminal — `errpulse tail` + live streaming in `start`
+
+  Errors no longer sit silently in the dashboard waiting to be noticed:
+  - `npx errpulse` (the `start` command) now streams every new error to the terminal it runs in, with severity coloring, the plain-English explanation, and fix suggestion. Recurrences are throttled to one line per error group per 2s window, showing the cumulative ×count. Disable with `--quiet`.
+  - New `npx errpulse tail` command attaches to an already-running ErrPulse server from any terminal. It waits for the server if it isn't up yet and reconnects automatically if the server restarts.
+  - `--requests` flag (on both commands) additionally prints failed HTTP requests (4xx/5xx/network failures).
+
+### Patch Changes
+
+- @errpulse/core@0.7.0
+- @errpulse/server@0.7.0
+
 ## 0.6.0
 
 ### Patch Changes
