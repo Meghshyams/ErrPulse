@@ -9,6 +9,7 @@ import {
   type ErrPulseEvent,
 } from "@errpulse/core";
 import { enqueueEvent, getEndpoint, sendRequestLog } from "../client.js";
+import { shouldAttachCorrelationHeader } from "./correlation-target.js";
 
 // Max size for body capture (16 KB) to avoid performance issues
 const MAX_BODY_SIZE = 16 * 1024;
@@ -58,10 +59,13 @@ export function installFetchInterceptor(): () => void {
       return originalFetch.call(window, input, init);
     }
 
-    // Inject correlation ID
+    // Inject correlation ID — but only for same-origin/local/allowlisted targets.
+    // A custom header forces a CORS preflight, which third-party APIs may reject.
     const correlationId = generateCorrelationId();
     const headers = new Headers(init?.headers);
-    headers.set(CORRELATION_HEADER, correlationId);
+    if (shouldAttachCorrelationHeader(url)) {
+      headers.set(CORRELATION_HEADER, correlationId);
+    }
 
     const method = init?.method ?? "GET";
     const startTime = Date.now();

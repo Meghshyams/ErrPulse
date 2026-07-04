@@ -1,35 +1,35 @@
 {
-  "name": "@errpulse/react",
+  "name": "@errpulse/browser",
   "version": "0.5.1",
-  "description": "ErrPulse React frontend SDK — catch every frontend error automatically",
+  "description": "ErrPulse framework-agnostic browser SDK — catch every frontend error with one init() call",
   "license": "MIT",
   "author": "Meghshyam Sonar",
   "homepage": "https://github.com/Meghshyams/ErrPulse#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/Meghshyams/ErrPulse.git",
-    "directory": "packages/react"
+    "directory": "packages/browser"
   },
   "keywords": [
     "error-monitoring",
     "error-tracking",
-    "react",
-    "error-boundary",
+    "browser",
     "frontend",
     "errpulse",
     "debugging",
     "error-handler",
-    "devtools",
     "console-log",
     "fetch-error",
-    "react-error-boundary",
     "sentry-alternative",
     "observability",
     "logging",
     "error-reporting",
     "xhr-interceptor",
     "fetch-interceptor",
-    "correlation-id"
+    "correlation-id",
+    "vanilla-js",
+    "vue",
+    "svelte"
   ],
   "publishConfig": {
     "access": "public"
@@ -59,16 +59,8 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0"
-  },
-  "dependencies": {
-    "@errpulse/browser": "workspace:*"
-  },
   "devDependencies": {
     "@errpulse/core": "workspace:*",
-    "@types/react": "^19.0.0",
-    "react": "^19.0.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"

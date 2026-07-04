@@ -6,7 +6,7 @@ import {
   generateEventId,
   type ErrPulseEvent,
 } from "@errpulse/core";
-import { enqueueEvent } from "../client.js";
+import { enqueueEvent } from "@errpulse/browser";
 
 export function useErrPulse() {
   const captureError = useCallback((error: Error | string, extra?: Record<string, unknown>) => {

@@ -1,4 +1,5 @@
 import { startServer, resolveConfig } from "@errpulse/server";
+import { startTail } from "./tail.js";
 
 const args = process.argv.slice(2);
 const command = args[0] ?? "start";
@@ -11,17 +12,22 @@ function printHelp(): void {
     errpulse [command] [options]
 
   Commands:
-    start     Start the ErrPulse server (default)
+    start     Start the ErrPulse server (default) — streams errors to this terminal
+    tail      Stream errors from a running ErrPulse server to this terminal
+    mcp       Start an MCP server so AI coding agents can query errors
     status    Check if ErrPulse is running
     clear     Clear all stored errors and requests
     help      Show this help message
 
   Options:
     --port <number>    Port to listen on (default: 3800)
+    --requests         Also print failed HTTP requests (4xx/5xx/network)
+    --quiet            Don't stream errors to the terminal (start only)
 
   Examples:
     npx errpulse
     npx errpulse start --port 4000
+    npx errpulse tail --requests
     npx errpulse clear
 
   Docs:
@@ -42,7 +48,31 @@ async function main(): Promise<void> {
     case "start":
     case undefined: {
       const port = parsePort();
-      await startServer({ port });
+      const { config } = await startServer({ port });
+      if (!args.includes("--quiet")) {
+        console.log("  Streaming new errors below (disable with --quiet)\n");
+        startTail({
+          port: config.port,
+          showRequests: args.includes("--requests"),
+          quiet: true,
+        });
+      }
+      break;
+    }
+
+    case "tail": {
+      const config = resolveConfig({ port: parsePort() });
+      startTail({
+        port: config.port,
+        showRequests: args.includes("--requests"),
+      });
+      break;
+    }
+
+    case "mcp": {
+      const config = resolveConfig({ port: parsePort() });
+      const { startMcpServer } = await import("./mcp.js");
+      await startMcpServer(config.port);
       break;
     }
 

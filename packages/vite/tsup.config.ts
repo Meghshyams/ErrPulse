@@ -6,6 +6,6 @@ export default defineConfig({
   dts: true,
   clean: true,
   sourcemap: true,
-  external: ["react", "react-dom", "@errpulse/browser"],
-  noExternal: ["@errpulse/core"],
+  shims: true,
+  external: ["vite", "@errpulse/browser"],
 });
