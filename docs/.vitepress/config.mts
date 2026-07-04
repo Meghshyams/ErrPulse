@@ -91,11 +91,13 @@ export default defineConfig({
           { text: "Why ErrPulse?", link: "/guide/why-errpulse" },
           { text: "How It Works", link: "/guide/how-it-works" },
           { text: "DevTools Widget", link: "/guide/devtools" },
+          { text: "AI Coding Agents (MCP)", link: "/guide/ai-agents" },
         ],
       },
       {
         text: "SDKs",
         items: [
+          { text: "Vite Plugin", link: "/sdks/vite" },
           { text: "Node.js", link: "/sdks/node" },
           { text: "React", link: "/sdks/react" },
           { text: "Multi-Project Setup", link: "/sdks/multi-project" },

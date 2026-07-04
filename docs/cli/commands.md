@@ -41,6 +41,31 @@ This starts:
 - The WebSocket server for real-time updates
 - The dashboard (served at the root URL)
 
+Unless `--quiet` is passed, the server also streams every new error to the terminal it runs in — severity-colored, with the plain-English explanation. Add `--requests` to also print failed HTTP requests.
+
+### `errpulse tail`
+
+Stream errors from an already-running ErrPulse server into the current terminal.
+
+```bash
+npx errpulse tail
+npx errpulse tail --requests   # also show failed HTTP requests (4xx/5xx/network)
+npx errpulse tail --port 4000
+```
+
+Repeated occurrences of the same error are collapsed to one `×N` line per 2-second window. If the server isn't running yet, `tail` waits for it and reconnects automatically if it restarts — handy in an IDE terminal pane.
+
+### `errpulse mcp`
+
+Start an [MCP server](/guide/ai-agents) (stdio transport) so AI coding agents like Claude Code and Cursor can query captured errors, failed requests, and console logs.
+
+```bash
+npx errpulse mcp
+npx errpulse mcp --port 4000   # if the ErrPulse server runs on a custom port
+```
+
+This command is meant to be launched _by_ the agent's MCP client, not run interactively — see [AI Coding Agents](/guide/ai-agents) for setup and the tool list.
+
 ### `errpulse status`
 
 Check if the ErrPulse server is running.

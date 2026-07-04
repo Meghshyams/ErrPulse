@@ -4,7 +4,9 @@
     { "path": "packages/core" },
     { "path": "packages/server" },
     { "path": "packages/node" },
+    { "path": "packages/browser" },
     { "path": "packages/react" },
-    { "path": "packages/cli" }
+    { "path": "packages/cli" },
+    { "path": "packages/vite" }
   ]
 }

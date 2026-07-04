@@ -8,6 +8,7 @@ import {
   type ErrPulseEvent,
 } from "@errpulse/core";
 import { enqueueEvent, getEndpoint } from "../client.js";
+import { shouldAttachCorrelationHeader } from "./correlation-target.js";
 
 export function installXHRInterceptor(): () => void {
   const OriginalXHR = window.XMLHttpRequest;
@@ -32,12 +33,15 @@ export function installXHRInterceptor(): () => void {
       return originalSend.call(this, body);
     }
 
-    // Inject correlation ID
+    // Inject correlation ID — but only for same-origin/local/allowlisted targets.
+    // A custom header forces a CORS preflight, which third-party APIs may reject.
     const correlationId = generateCorrelationId();
-    try {
-      this.setRequestHeader(CORRELATION_HEADER, correlationId);
-    } catch {
-      // May throw if request is already sent
+    if (shouldAttachCorrelationHeader(url)) {
+      try {
+        this.setRequestHeader(CORRELATION_HEADER, correlationId);
+      } catch {
+        // May throw if request is already sent
+      }
     }
 
     this.addEventListener("loadend", () => {

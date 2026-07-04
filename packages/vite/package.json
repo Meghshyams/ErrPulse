@@ -1,35 +1,26 @@
 {
-  "name": "@errpulse/react",
-  "version": "0.6.0",
-  "description": "ErrPulse React frontend SDK — catch every frontend error automatically",
+  "name": "@errpulse/vite",
+  "version": "0.1.0",
+  "description": "ErrPulse Vite plugin — zero-config error monitoring for any Vite app, one line in vite.config",
   "license": "MIT",
   "author": "Meghshyam Sonar",
   "homepage": "https://github.com/Meghshyams/ErrPulse#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/Meghshyams/ErrPulse.git",
-    "directory": "packages/react"
+    "directory": "packages/vite"
   },
   "keywords": [
+    "vite",
+    "vite-plugin",
     "error-monitoring",
     "error-tracking",
-    "react",
-    "error-boundary",
-    "frontend",
     "errpulse",
     "debugging",
-    "error-handler",
     "devtools",
-    "console-log",
-    "fetch-error",
-    "react-error-boundary",
+    "frontend",
     "sentry-alternative",
-    "observability",
-    "logging",
-    "error-reporting",
-    "xhr-interceptor",
-    "fetch-interceptor",
-    "correlation-id"
+    "zero-config"
   ],
   "publishConfig": {
     "access": "public"
@@ -59,18 +50,16 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0"
-  },
   "dependencies": {
     "@errpulse/browser": "workspace:*"
   },
+  "peerDependencies": {
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0"
+  },
   "devDependencies": {
-    "@errpulse/core": "workspace:*",
-    "@types/react": "^19.0.0",
-    "react": "^19.0.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
+    "vite": "^6.0.0",
     "vitest": "^2.1.8"
   }
 }

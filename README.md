@@ -16,6 +16,7 @@
   <a href="#sdks">SDKs</a> &bull;
   <a href="#dashboard">Dashboard</a> &bull;
   <a href="#devtools-widget">DevTools Widget</a> &bull;
+  <a href="#ai-coding-agents-mcp">AI Agents</a> &bull;
   <a href="#multi-project">Multi-Project</a> &bull;
   <a href="#api">API</a>
 </p>
@@ -78,7 +79,24 @@ app.use(expressRequestHandler()); // Track all requests (headers, body, response
 app.use(expressErrorHandler()); // Catch route errors
 ```
 
-### 3. Add to your frontend (React)
+### 3. Add to your frontend
+
+**Option A — any Vite app, zero code changes** (React, Vue, Svelte, vanilla):
+
+```bash
+npm install -D @errpulse/vite
+```
+
+```ts
+// vite.config.ts
+import errpulse from "@errpulse/vite";
+
+export default defineConfig({
+  plugins: [errpulse()], // dev-only; never ships in production builds
+});
+```
+
+**Option B — React SDK** (adds error boundary + in-app DevTools panel):
 
 ```bash
 npm install @errpulse/react
@@ -95,6 +113,13 @@ function App() {
     </ErrPulseProvider>
   );
 }
+```
+
+**Option C — any browser app, no Vite:**
+
+```ts
+import { init } from "@errpulse/browser";
+init({ endpoint: "http://localhost:3800", projectId: "my-web-app" });
 ```
 
 ### 4. Open the dashboard
@@ -135,7 +160,16 @@ Or just click the floating ErrPulse icon in your app to see errors, console logs
 
 ### Error Correlation
 
-Frontend injects an `X-ErrPulse-Correlation-ID` header into every fetch request. Backend reads the same ID. The dashboard shows the full chain: **user action → frontend request → backend error**.
+Frontend injects an `X-ErrPulse-Correlation-ID` header into requests to your own backend. Backend reads the same ID. The dashboard shows the full chain: **user action → frontend request → backend error**.
+
+By default the header is only sent to same-origin requests and local dev hosts (`localhost`, `127.0.0.1`, `*.localhost`) — never to third-party APIs, since a custom header forces a CORS preflight they may reject. To propagate it to other backends you control, pass `correlationPropagationTargets` to the provider:
+
+```tsx
+<ErrPulseProvider
+  endpoint="http://localhost:3800"
+  correlationPropagationTargets={["api.mycompany.com", /^https:\/\/staging\./]}
+>
+```
 
 ---
 
@@ -203,6 +237,7 @@ import { ErrPulseProvider, ErrPulseDevTools } from "@errpulse/react";
   captureFetch={true}
   captureXHR={true}
   captureResourceErrors={true}
+  correlationPropagationTargets={["api.mycompany.com"]} // extra hosts to send the correlation header to
   errorBoundaryFallback={<div>Something went wrong</div>}
 >
   <App />
@@ -303,6 +338,32 @@ The footer shows connection status: green dot = connected to server, orange dot 
 
 ---
 
+## AI Coding Agents (MCP)
+
+ErrPulse includes an MCP server, so AI coding agents — Claude Code, Cursor, Windsurf — can see your app's runtime errors directly: browser console errors, failed network calls, backend crashes. The agent edits your code, you click through the app, and the agent asks ErrPulse _"what actually broke?"_ — no copy-pasting stack traces.
+
+```bash
+# Claude Code
+claude mcp add errpulse -- npx errpulse mcp
+
+# Cursor / generic MCP config
+{ "mcpServers": { "errpulse": { "command": "npx", "args": ["errpulse", "mcp"] } } }
+```
+
+| Tool                  | Description                                                               |
+| --------------------- | ------------------------------------------------------------------------- |
+| `get_recent_errors`   | List error groups with counts and plain-English explanations (filterable) |
+| `get_error_details`   | Stack traces, occurrences, and the linked HTTP request for one error      |
+| `get_failed_requests` | Failed HTTP requests (4xx/5xx/network) with response bodies               |
+| `get_console_logs`    | Captured console output from browser and Node                             |
+| `get_stats`           | Error/request counts, error rate, health score                            |
+| `update_error_status` | Mark an error resolved/acknowledged/ignored after fixing it               |
+| `clear_all_data`      | Wipe stored data before a reproduction run (destructive)                  |
+
+Example: _"Refactor the checkout flow, then check ErrPulse for any new errors."_ — the agent verifies its own work against real runtime behavior. See the [full guide](https://meghshyams.github.io/ErrPulse/guide/ai-agents).
+
+---
+
 ## Multi-Project
 
 Monitor multiple apps from a single ErrPulse instance. Each SDK sends a `projectId`, and the dashboard lets you filter by project.
@@ -381,8 +442,10 @@ errpulse/
 │   ├── server/      # @errpulse/server — Express API + SQLite + WebSocket
 │   │   └── dashboard/  # React dashboard (Vite + Tailwind CSS)
 │   ├── node/        # @errpulse/node — Backend SDK
-│   ├── react/       # @errpulse/react — Frontend SDK
-│   └── cli/         # errpulse — CLI entry point
+│   ├── browser/     # @errpulse/browser — Framework-agnostic browser SDK (init() + interceptors)
+│   ├── react/       # @errpulse/react — React SDK (provider, error boundary, DevTools widget)
+│   ├── vite/        # @errpulse/vite — Vite plugin (zero-config injection, dev-only)
+│   └── cli/         # errpulse — CLI entry point (server, tail, MCP)
 ├── package.json
 ├── pnpm-workspace.yaml
 └── vitest.workspace.ts
@@ -431,12 +494,20 @@ All list endpoints support `?projectId=<name>` to filter by project.
 ## CLI
 
 ```bash
-npx errpulse                    # Start server on port 3800
+npx errpulse                    # Start server on port 3800 (streams errors to the terminal)
 npx errpulse start --port 4000  # Custom port
+npx errpulse start --quiet      # Don't stream errors to the terminal
+npx errpulse tail               # Stream errors from a running server in any terminal
+npx errpulse tail --requests    # Also show failed HTTP requests (4xx/5xx/network)
+npx errpulse mcp                # MCP server for AI coding agents (Claude Code, Cursor)
 npx errpulse status             # Check if running
 npx errpulse clear              # Clear all data
 npx errpulse help               # Show help
 ```
+
+### Terminal error stream
+
+You shouldn't have to remember to open a dashboard. `npx errpulse` prints every new error live in the terminal it runs in — severity-colored, with the plain-English explanation and fix suggestion. Repeated occurrences are collapsed into a single `×N` line per error. Run `npx errpulse tail` in a spare terminal (or IDE terminal pane) to get the same stream anywhere; it auto-reconnects if the server restarts.
 
 ## Development
 

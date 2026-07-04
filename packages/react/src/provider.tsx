@@ -1,12 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { setEndpoint, setProjectId, flushWithBeacon, flushLogsWithBeacon } from "./client.js";
-import { installGlobalErrorHandler } from "./instruments/global-errors.js";
-import { installUnhandledRejectionHandler } from "./instruments/unhandled-rejections.js";
-import { installFetchInterceptor } from "./instruments/fetch-interceptor.js";
-import { installXHRInterceptor } from "./instruments/xhr-interceptor.js";
-import { installConsoleInterceptor } from "./instruments/console-interceptor.js";
-import { installConsoleLogInterceptor } from "./instruments/console-log-interceptor.js";
-import { installResourceErrorHandler } from "./instruments/resource-errors.js";
+import { init, type CorrelationTarget } from "@errpulse/browser";
 import { ErrPulseErrorBoundary } from "./components/ErrorBoundary.js";
 
 interface ErrPulseProviderProps {
@@ -18,6 +11,13 @@ interface ErrPulseProviderProps {
   captureFetch?: boolean;
   captureXHR?: boolean;
   captureResourceErrors?: boolean;
+  /**
+   * URLs to send the X-ErrPulse-Correlation-ID header to. Strings match as
+   * substrings, RegExps are tested against the full URL. Defaults to
+   * same-origin requests and localhost targets — the header forces a CORS
+   * preflight, so it is never sent to third-party origins by default.
+   */
+  correlationPropagationTargets?: CorrelationTarget[];
   errorBoundaryFallback?: React.ReactNode | ((error: Error) => React.ReactNode);
 }
 
@@ -30,6 +30,7 @@ export function ErrPulseProvider({
   captureFetch = true,
   captureXHR = true,
   captureResourceErrors = true,
+  correlationPropagationTargets,
   errorBoundaryFallback,
 }: ErrPulseProviderProps): React.ReactElement {
   const initialized = useRef(false);
@@ -38,30 +39,19 @@ export function ErrPulseProvider({
     if (initialized.current) return;
     initialized.current = true;
 
-    setEndpoint(endpoint);
-    if (projectId) setProjectId(projectId);
-
-    const cleanups: (() => void)[] = [];
-
-    cleanups.push(installGlobalErrorHandler());
-    cleanups.push(installUnhandledRejectionHandler());
-
-    if (captureFetch) cleanups.push(installFetchInterceptor());
-    if (captureXHR) cleanups.push(installXHRInterceptor());
-    if (captureConsoleErrors) cleanups.push(installConsoleInterceptor());
-    if (captureConsoleLogs) cleanups.push(installConsoleLogInterceptor());
-    if (captureResourceErrors) cleanups.push(installResourceErrorHandler());
-
-    // Flush on page unload
-    const handleUnload = () => {
-      flushWithBeacon();
-      flushLogsWithBeacon();
-    };
-    window.addEventListener("beforeunload", handleUnload);
+    const teardown = init({
+      endpoint,
+      projectId,
+      captureConsoleErrors,
+      captureConsoleLogs,
+      captureFetch,
+      captureXHR,
+      captureResourceErrors,
+      correlationPropagationTargets,
+    });
 
     return () => {
-      for (const cleanup of cleanups) cleanup();
-      window.removeEventListener("beforeunload", handleUnload);
+      teardown();
       initialized.current = false;
     };
   }, [

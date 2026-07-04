@@ -6,7 +6,7 @@ import {
   generateEventId,
   type ErrPulseEvent,
 } from "@errpulse/core";
-import { enqueueEvent } from "../client.js";
+import { enqueueEvent } from "@errpulse/browser";
 
 interface ErrorBoundaryProps {
   fallback?: React.ReactNode | ((error: Error) => React.ReactNode);

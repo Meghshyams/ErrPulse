@@ -13,7 +13,7 @@ import {
   getRequestHistory,
   getEndpoint,
   type RequestLogData,
-} from "../client.js";
+} from "@errpulse/browser";
 import { DEVTOOLS_CSS } from "./styles.js";
 import { icons } from "./icons.js";
 

@@ -63,7 +63,6 @@ init({
 | `enabled`                    | `boolean`  | `true`                    | Enable or disable the SDK                        |
 | `sampleRate`                 | `number`   | `1`                       | Sample rate from 0.0 to 1.0 (1.0 = capture all)  |
 | `captureConsoleErrors`       | `boolean`  | `true`                    | Capture `console.error` calls                    |
-| `captureConsoleLogs`         | `boolean`  | `false`                   | Capture `console.log/warn/info/debug` to Logs    |
 | `captureUncaughtExceptions`  | `boolean`  | `true`                    | Capture uncaught exceptions                      |
 | `captureUnhandledRejections` | `boolean`  | `true`                    | Capture unhandled promise rejections             |
 | `monitorMemory`              | `boolean`  | `true`                    | Monitor memory usage and emit warnings           |
